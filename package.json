@@ -1,0 +1,11 @@
+{
+  "name": "cssx",
+  "version": "0.0.0",
+  "main": "src/index.ts",
+  "repository": "__",
+  "author": "Akshay Nair <phenax5@gmail.com>",
+  "license": "MIT",
+  "devDependencies": {
+    "typescript": "^5.1.6"
+  }
+}
