@@ -1,0 +1,38 @@
+body {
+  --cssx-children: todo-container;
+}
+
+#todo-container {
+  --cssx-children: todo-input todo-list;
+  --todo-list: list();
+}
+
+#todo-input {
+  --cssx-children: input-field submit-btn;
+}
+
+#submit-btn {
+  --cssx-on-click: update(
+    todo-container,
+    --todo-list,
+    list-append(
+      var(--todo-list),
+      tuple(get-attr(input-field, value), false)
+    )
+  );
+}
+#submit-btn::after {
+  content: "Submit";
+}
+
+#todo-list {
+  --cssx-iter-children: iter(var(--todo-list), --todo-item, todo-item);
+}
+
+#todo-item {
+
+}
+#todo-item::after {
+  content: var(--todo-item);
+}
+

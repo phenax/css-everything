@@ -1,0 +1,22 @@
+body {
+  --cssx-children: load-btn output-container;
+}
+
+#load-btn {
+  --cssx-on-click:
+    add-class(load-btn, 'loading')
+    get(url('./more-style.css'))
+    add-class(load-btn, 'hidden');
+}
+#load-btn.loading {
+  pointer-events: none;
+  opacity: 0.4;
+}
+#load-btn.hidden {
+  display: none;
+}
+
+#output-container {
+  --cssx-children: output-container-content;
+}
+
