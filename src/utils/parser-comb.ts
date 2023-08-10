@@ -17,12 +17,14 @@ export type ParseResult<T> = Result<{ value: T, input: string }, { error: string
 export type Parser<T> = (input: string) => ParseResult<T>;
 
 export const regex = (re: RegExp): Parser<string> => input => {
+  if (input.length === 0) return Result.Err({ error: 'fuckedinput', input })
   const res = input.match(re)
   if (!res) return Result.Err({ error: 'fucked', input });
   return Result.Ok({ value: res[0], input: input.replace(re, '') });
 }
 
 export const string = (str: string): Parser<string> => input => {
+  if (input.length === 0) return Result.Err({ error: 'fuckedinput', input })
   if (!input.startsWith(str)) return Result.Err({ error: 'fuckedstring', input })
   return Result.Ok({ value: str, input: input.slice(str.length) });
 }
@@ -60,4 +62,25 @@ export const suffixed = <A>(parser: Parser<A>, parserSuffix: Parser<any>): Parse
 
 export const between = <A>(prefix: Parser<any>, parser: Parser<A>, suffix: Parser<any>): Parser<A> =>
   suffixed(prefixed(prefix, parser), suffix)
+
+export const many0 = <A>(parser: Parser<A>): Parser<Array<A>> => originalInput =>
+  match(parser(originalInput), {
+    Ok: ({ value, input }) => map(many0(parser), ls => [value, ...ls])(input),
+    Err: ({ input }) => Result.Ok({ value: [], input }),
+  })
+
+export const many1 = <A>(parser: Parser<A>): Parser<Array<A>> => originalInput =>
+  match(parser(originalInput), {
+    Ok: ({ value, input }) => map(many0(parser), ls => [value, ...ls])(input),
+    Err: err => Result.Err(err),
+  })
+
+export const sepBy = <A>(parser: Parser<A>, sepP: Parser<any>): Parser<Array<A>> => originalInput =>
+  match(parser(originalInput), {
+    Ok: ({ value, input }) => map(
+      many0(prefixed(sepP, parser)),
+      ls => [value, ...ls]
+    )(input),
+    Err: _ => Result.Ok({ value: [], input: originalInput }),
+  })
 
