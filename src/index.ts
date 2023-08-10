@@ -1,3 +1,6 @@
+import { Dependencies, evalExpr } from "./eval";
+import { parse } from "./parser";
+
 const UNSET_PROPERTY_VALUE = '<unset>';
 const EVENT_HANDLERS = {
   click: '--cssx-on-click',
@@ -30,25 +33,37 @@ const getPropertyValue = ($element: HTMLElement, prop: string) => {
 
 const getChildrenIds = ($element: HTMLElement) => {
   const value = getPropertyValue($element, '--cssx-children')
-  return value.split(/(\s*,\s*)|\s*/g).filter(Boolean)
+  return value.split(/(\s*,\s*)|\s+/g).filter(Boolean)
 }
 
-const handleEvents = ($element: HTMLElement) => {
-  Object.entries(EVENT_HANDLERS).forEach(([event, property]) => {
+const evalDeps = (_el: HTMLElement): Dependencies => ({
+  addClass: async (id, cls) => document.getElementById(id)?.classList.add(cls),
+  removeClass: async (id, cls) => document.getElementById(id)?.classList.remove(cls),
+  delay: delay => new Promise((res) => setTimeout(res, delay)),
+  jsEval: async js => (0, eval)(js),
+})
+
+const handleEvents = async ($element: HTMLElement) => {
+  for (const [event, property] of Object.entries(EVENT_HANDLERS)) {
     const handlerExpr = getPropertyValue($element, property);
+
     if (handlerExpr) {
-      // TODO: Parse onclick
-      // TODO: attach handler for eval
-      console.log(event, handlerExpr);
+      ($element as any)[`on${event}`] = async () => {
+        console.log(`Triggered event: ${event}`)
+        const exprs = parse(handlerExpr)
+        for (const expr of exprs) {
+          await evalExpr(expr, evalDeps($element))
+        }
+      };
     }
-  });
+  }
 };
 
 let iters = 0;
-const manageElement = ($element: HTMLElement) => {
+const manageElement = async ($element: HTMLElement) => {
   if (iters++ > 100) return; // NOTE: Temporary. To prevent infinite rec
 
-  handleEvents($element);
+  await handleEvents($element);
 
   const $childrenRoot = Object.assign(document.createElement('div'), {
     className: 'cssx-layer',
@@ -59,16 +74,16 @@ const manageElement = ($element: HTMLElement) => {
   for (const id of childrenIds) {
     const $child = Object.assign(document.createElement('div'), { id });
     $childrenRoot.appendChild($child);
-    manageElement($child);
+    await manageElement($child);
   }
 }
 
 interface Options {
   root?: HTMLElement;
 }
-const render = ({ root = document.body }: Options = {}) => {
+const render = async ({ root = document.body }: Options = {}) => {
   injectStyles();
-  manageElement(root);
+  await manageElement(root);
 }
 
 render();

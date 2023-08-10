@@ -3,20 +3,34 @@ body {
 }
 
 #load-btn {
+  display: inline-block;
+  border: 1px solid gray;
+  padding: 0.5rem 1rem;
+  cursor: pointer;
+
   --cssx-on-click:
+    add-class(output-container, 'loading')
     add-class(load-btn, 'loading')
-    get('./more-style.css')
-    add-class(load-btn, 'hidden');
+    delay('2000')
+    remove-class(output-container, 'loading')
+    add-class(output-container, 'loaded')
+    remove-class(load-btn, 'loading')
+    js-eval('alert("Loaded page")')
+  ;
 }
+#load-btn::after { content: "Click me for magic"; }
 #load-btn.loading {
   pointer-events: none;
   opacity: 0.4;
 }
-#load-btn.hidden {
-  display: none;
-}
 
 #output-container {
   --cssx-children: output-container-content;
+}
+#output-container.loading::after {
+  content: "Loading...";
+}
+#output-container.loaded::after {
+  content: "This content is loaded my guy";
 }
 

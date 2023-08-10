@@ -4,6 +4,8 @@ import { match, matchString } from "./utils/adt";
 export type Dependencies = {
   addClass(id: string, classes: string): Promise<void>
   removeClass(id: string, classes: string): Promise<void>
+  delay(num: number): Promise<void>
+  jsEval(js: string): Promise<any>
   // requestGetCss(url: string): Promise<string>
   // getVarable(name: string, def?: string): Promise<string>
   // updateVariable(id: string, varName: string, value: string): Promise<void>
@@ -27,6 +29,14 @@ export const evalExpr = async (expr: Expr, deps: Dependencies): Promise<string |
           if (id && classes) {
             await deps.removeClass(id, classes)
           }
+        },
+        'delay': async () => {
+          const num = await evalExpr(args[0], deps)
+          num && await deps.delay(parseInt(num, 10))
+        },
+        'js-eval': async () => {
+          const js = await evalExpr(args[0], deps)
+          js && await deps.jsEval(js)
         },
         _: () => Promise.reject(new Error('not supposed to be here')),
       })
