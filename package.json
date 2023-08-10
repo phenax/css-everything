@@ -5,7 +5,13 @@
   "repository": "__",
   "author": "Akshay Nair <phenax5@gmail.com>",
   "license": "MIT",
+  "scripts": {
+    "build": "tsc",
+    "serve": "serve -p 3000 .",
+    "watch": "tsc --watch"
+  },
   "devDependencies": {
+    "serve": "^14.2.0",
     "typescript": "^5.1.6"
   }
 }

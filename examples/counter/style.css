@@ -1,0 +1,26 @@
+body {
+  --cssx-children: container todo-container;
+  --cssx-on-load: js(console.log("what have we done?!"));
+}
+
+#container {
+  --cssx-children: counter btn-increment;
+  --count: '0';
+}
+
+#counter {
+}
+#counter::before {
+  content: "Count: " var(--count);
+}
+
+#btn-increment {
+  display: inline-block;
+  padding: 0.5rem 1rem;
+  border: 1px solid gray;
+
+  --cssx-on-click: update(container, --count, calc(var(--count) + 1));
+}
+#btn-increment::after {
+  content: "Increment";
+}
