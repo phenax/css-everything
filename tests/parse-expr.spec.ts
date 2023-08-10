@@ -42,4 +42,35 @@ describe('parser', () => {
       }),
     ])
   })
+
+  it('should parse string literal', () => {
+    expect(parse(`"hello world toodles \' nice single quote there"`)).toEqual([
+      Expr.LiteralString(`hello world toodles \' nice single quote there`),
+    ])
+
+    expect(parse(` 'hello world toodles \" nice double quote there' `)).toEqual(
+      [Expr.LiteralString(`hello world toodles \" nice double quote there`)]
+    )
+  })
+
+  it('should parse var identifiers', () => {
+    expect(parse(`var(--hello, 'default')`)).toEqual([
+      Expr.Call({
+        name: 'var',
+        args: [Expr.VarIdentifier('--hello'), Expr.LiteralString(`default`)],
+      }),
+    ])
+
+    expect(parse(`calc(var(--hello))`)).toEqual([
+      Expr.Call({
+        name: 'calc',
+        args: [
+          Expr.Call({
+            name: 'var',
+            args: [Expr.VarIdentifier('--hello')],
+          }),
+        ],
+      }),
+    ])
+  })
 })
