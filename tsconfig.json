@@ -6,6 +6,7 @@
     "skipLibCheck": true,
     "outDir": "dist",
     "incremental": true,
+    "noEmit": true,
 
     "moduleResolution": "bundler",
     "resolveJsonModule": true,
