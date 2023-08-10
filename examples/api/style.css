@@ -5,7 +5,7 @@ body {
 #load-btn {
   --cssx-on-click:
     add-class(load-btn, 'loading')
-    get(url('./more-style.css'))
+    get('./more-style.css')
     add-class(load-btn, 'hidden');
 }
 #load-btn.loading {

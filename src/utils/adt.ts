@@ -5,6 +5,11 @@ export const match =
     [key in T['tag'] | '_']?: (v: TagValue<T, key>) => R
   }): R => ((pattern as any)[tag.tag] || (pattern._ as any))(tag.value)
 
+export const matchString =
+  <R, T extends string>(key: T, pattern: {
+    [key in T | '_']?: (key: key) => R
+  }): R => ((pattern as any)[key] || (pattern._ as any))(key)
+
 type Tag<N, V> = { tag: N; value: V }
 export type Enum<T> = { [N in keyof T]: Tag<N, T[N]> }[keyof T]
 

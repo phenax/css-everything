@@ -1,4 +1,4 @@
-import { Expr, parse } from '../src/parse-expr'
+import { Expr, parse } from '../src/parser'
 
 describe('parser', () => {
   it('should parse function call', () => {
