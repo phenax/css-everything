@@ -58,7 +58,6 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
 
     delay: async () => {
       const num = await evalExpr(args[0], actions)
-      console.log(num)
       num && (await actions.delay(parseInt(num, 10)))
     },
     'js-eval': async () => {

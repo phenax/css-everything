@@ -7,8 +7,9 @@
   - (x) Specify node type - `button(id)` or `button#id`
   - (x) attributes
   - (x) `--cssx-text` (and maybe `--cssx-html`?)
+  - (x) dom tests
+  - ( ) `add-class` & `remove-class` should use self if id is not specified
   - ( ) Evaluate `calc`
   - ( ) Additional events
-  - ( ) Proper dom tests
   - ( ) Improve error messages
   - ( ) `list` & `tuple` data structures?

@@ -22,7 +22,7 @@ body * {
     remove-class(signup-page, 'loading') remove-class(signup-btn, 'loading');
 }
 #signup-btn::after {
-  content: 'Register now to start your free trail for $99';
+  content: 'Register now to start your free trial for $99';
 }
 #signup-btn:hover {
   opacity: 0.8;

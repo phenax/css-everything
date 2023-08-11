@@ -1,4 +1,3 @@
-
 body {
   --cssx-children: element-1 element-2 element-3;
 }
@@ -7,9 +6,11 @@ body {
   --cssx-on-click: js-eval('alert("clicked")');
 }
 #element-2 {
-  --from-variable: "is here";
+  --from-variable: 'is here';
 }
-#element-2::after { content: "My content: " var(--from-variable); }
+#element-2::after {
+  content: 'My content: ' var(--from-variable);
+}
 
 #element-3 {
   --cssx-on-click: js-eval('alert("clicked")');

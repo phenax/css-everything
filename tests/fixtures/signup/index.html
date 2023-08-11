@@ -1,0 +1,47 @@
+<html lang="en">
+  <head>
+    <title>Register page</title>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        --cssx-children: button#show-form-btn form#signup-form;
+      }
+
+      #show-form-btn::before {
+        content: 'Show form';
+      }
+      #show-form-btn {
+        --cssx-on-click: add-class(signup-form, 'visible')
+          add-class(show-form-btn, 'active');
+      }
+
+      #signup-form {
+        display: none;
+
+        --cssx-children: input#email input#password button#submit-btn;
+
+        --cssx-on-submit: prevent-default() add-class(signup-form, 'submitting')
+          delay(0.2s) request('http://example.com/submit/api', POST)
+          remove-class(signup-form, 'submitting')
+          add-class(signup-form, 'submitted');
+      }
+      #signup-form.visible {
+        display: block;
+      }
+
+      #email {
+        --cssx-on-mount: set-attr('name', 'email')
+          set-attr('data-testid', 'email');
+      }
+      #password {
+        --cssx-on-mount: set-attr('name', 'password')
+          set-attr('data-testid', 'password');
+      }
+      #submit-btn {
+        --cssx-on-mount: set-attr('type', 'submit');
+        --cssx-text: Submit;
+      }
+    </style>
+  </head>
+  <body></body>
+</html>
