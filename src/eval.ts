@@ -9,6 +9,10 @@ export type EvalActions = {
   loadCssx(id: string, url: string): Promise<string>
   getVariable(name: string): Promise<string | undefined>
   updateVariable(id: string, varName: string, value: string): Promise<void>
+  setAttribute(name: string, value: string): Promise<void>
+  withEvent(fn: (e: any) => void): Promise<void>
+  getFormData(): Promise<FormData | undefined>
+  sendRequest(_: { method: string, url: string, data: FormData | undefined }): Promise<void>
   // calculate ??
 }
 
@@ -47,6 +51,7 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
         await actions.removeClass(id, classes)
       }
     },
+
     delay: async () => {
       const num = await evalExpr(args[0], actions)
       console.log(num)
@@ -56,6 +61,7 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
       const js = await evalExpr(args[0], actions)
       js && (await actions.jsEval(js))
     },
+
     'load-cssx': async () => {
       const id = await evalExpr(args[0], actions)
       const url = await evalExpr(args[1], actions)
@@ -63,6 +69,7 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
         await actions.loadCssx(id, url)
       }
     },
+
     var: async () => {
       const varName = await evalExpr(args[0], actions)
       const defaultValue = await evalExpr(args[1], actions)
@@ -76,5 +83,25 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
         actions.updateVariable(id, varName, value)
       }
     },
+
+    'set-attr': async () => {
+      const name = await evalExpr(args[0], actions)
+      const value = await evalExpr(args[1], actions)
+      if (name && value) {
+        actions.setAttribute(name, value)
+      }
+    },
+    'prevent-default': async () => actions.withEvent(e => e.preventDefault()),
+
+    'request': async () => {
+      const url = await evalExpr(args[0], actions)
+      const method = args[1] ? (await evalExpr(args[1], actions) ?? 'post') : 'post'
+
+      if (url) {
+        const data = await actions.getFormData()
+        await actions.sendRequest({ method, url, data })
+      }
+    },
+
     _: () => Promise.reject(new Error('not supposed to be here')),
   })

@@ -5,6 +5,8 @@ const UNSET_PROPERTY_VALUE = '<unset>'
 const EVENT_HANDLERS = {
   click: '--cssx-on-click',
   load: '--cssx-on-load',
+  mount: '--cssx-on-mount',
+  submit: '--cssx-on-submit',
 }
 
 const injectStyles = () => {
@@ -33,7 +35,7 @@ const getChildrenIds = ($element: Element) => {
   return value.split(/(\s*,\s*)|\s+/g).filter(Boolean)
 }
 
-const getEvalActions = ($element: Element): EvalActions => ({
+const getEvalActions = ($element: Element, event: any): EvalActions => ({
   addClass: async (id, cls) => document.getElementById(id)?.classList.add(cls),
   removeClass: async (id, cls) =>
     document.getElementById(id)?.classList.remove(cls),
@@ -65,29 +67,44 @@ const getEvalActions = ($element: Element): EvalActions => ({
       $el.style.setProperty(varName, JSON.stringify(value))
     }
   },
+  setAttribute: async (name, value) => {
+    $element.setAttribute(name, value)
+  },
+  withEvent: async (fn) => fn(event),
+  getFormData: async () => $element.nodeName === 'FORM' ? new FormData($element as HTMLFormElement) : undefined,
+  sendRequest: async ({ url, method, data }) => {
+    await fetch(url, { method, body: data })
+    // TODO: Handle response?
+  },
 })
 
-const handleEvents = async ($element: Element) => {
-  for (const [event, property] of Object.entries(EVENT_HANDLERS)) {
+const handleEvents = async ($element: Element, isNewElement: boolean = false) => {
+  for (const [eventType, property] of Object.entries(EVENT_HANDLERS)) {
     const handlerExpr = getPropertyValue($element, property)
 
     if (handlerExpr) {
-      ;($element as any)[`on${event}`] = async () => {
-        console.log(`Triggered event: ${event}`)
+      const eventHandler = async (event: any) => {
+        console.log(`Triggered event: ${eventType}`)
         const exprs = parse(handlerExpr)
         for (const expr of exprs) {
-          await evalExpr(expr, getEvalActions($element))
+          await evalExpr(expr, getEvalActions($element, event))
         }
+      }
+
+      if (eventType === 'mount') {
+        if (isNewElement) setTimeout(eventHandler)
+      } else {
+        ;($element as any)[`on${eventType}`] = eventHandler
       }
     }
   }
 }
 
 let nodeCount = 0
-const manageElement = async ($element: Element) => {
+const manageElement = async ($element: Element, isNewElement: boolean = false) => {
   if (nodeCount++ > 100) return // NOTE: Temporary. To prevent infinite rec
 
-  await handleEvents($element)
+  await handleEvents($element, isNewElement)
   const childrenIds = getChildrenIds($element)
 
   if (childrenIds.length > 0) {
@@ -98,12 +115,14 @@ const manageElement = async ($element: Element) => {
     $element.appendChild($childrenRoot)
 
     for (const childId of childrenIds) {
-      const [tag, id] = childId.split('#')
+      let isNewElement = false;
+      const selector = childId.split('#')
+      const [tag, id] = selector.length >= 2 ? selector : ['div', ...selector]
       const $child =
         $childrenRoot.querySelector(`:scope > #${id}`) ??
-        Object.assign(document.createElement(tag || 'div'), { id })
+        (isNewElement = true, Object.assign(document.createElement(tag || 'div'), { id }))
       $childrenRoot.appendChild($child)
-      await manageElement($child)
+      await manageElement($child, isNewElement)
     }
   }
 }

@@ -4,8 +4,8 @@
   - (x) `get-variable`
   - (x) `update-variable`
   - (x) Use css units for `delay` function
-  - ( ) Specify node type - `button(id)` or `button#id`
-  - ( ) `--cssx-attr-*` for attributes
+  - (x) Specify node type - `button(id)` or `button#id`
+  - (x) attributes
   - ( ) `--cssx-text` (and maybe `--cssx-html`?)
   - ( ) Improve error messages
   - ( ) Evaluate `calc`?

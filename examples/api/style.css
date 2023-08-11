@@ -1,34 +1,38 @@
 body {
-  --cssx-children: button#load-btn output-container;
+  --cssx-children: button#signup-btn signup-page;
+}
+body * {
+  box-sizing: border-box;
 }
 
-#load-btn {
+#signup-btn {
   display: inline-block;
   background: #5180e9;
   color: #000;
   padding: 0.5rem 1rem;
   cursor: pointer;
 
+  --cssx-on-mount: set-attr('type', 'button');
+
   --cssx-on-click:
-    add-class(output-container, 'loading')
-    add-class(load-btn, 'loading')
-    load-cssx(output-container-content, './content.css')
-    remove-class(output-container, 'loading')
-    remove-class(load-btn, 'loading')
-    delay(0.7s)
-    js-eval('alert("Loaded page")')
+    add-class(signup-page, 'loading')
+    add-class(signup-btn, 'loading')
+    delay(0.5s)
+    load-cssx(signup-page-content, './signup.css')
+    remove-class(signup-page, 'loading')
+    remove-class(signup-btn, 'loading')
   ;
 }
-#load-btn::after { content: "Click me for magic"; }
-#load-btn.loading {
+#signup-btn::after { content: "Register now to start your free trail for $99"; }
+#signup-btn.loading {
   pointer-events: none;
   opacity: 0.4;
 }
 
-#output-container {
-  --cssx-children: output-container-content;
+#signup-page {
+  --cssx-children: signup-page-content;
 }
-#output-container.loading::after {
+#signup-page.loading::after {
   content: "Loading...";
 }
 

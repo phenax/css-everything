@@ -10,6 +10,7 @@ describe('eval', () => {
     loadCssx: jest.fn(),
     getVariable: jest.fn(),
     updateVariable: jest.fn(),
+    setAttribute: jest.fn(),
   }
 
   it('should add classes', async () => {
