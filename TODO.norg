@@ -7,6 +7,8 @@
   - (x) Specify node type - `button(id)` or `button#id`
   - (x) attributes
   - (x) `--cssx-text` (and maybe `--cssx-html`?)
+  - ( ) Evaluate `calc`
+  - ( ) Additional events
+  - ( ) Proper dom tests
   - ( ) Improve error messages
-  - ( ) Evaluate `calc`?
   - ( ) `list` & `tuple` data structures?

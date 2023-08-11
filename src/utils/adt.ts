@@ -1,14 +1,18 @@
 type TagValue<T, N> = T extends Tag<N, infer V> ? V : never
 
-export const match =
-  <R, T extends Tag<string, any>>(tag: T, pattern: {
+export const match = <R, T extends Tag<string, any>>(
+  tag: T,
+  pattern: {
     [key in T['tag'] | '_']?: (v: TagValue<T, key>) => R
-  }): R => ((pattern as any)[tag.tag] || (pattern._ as any))(tag.value)
+  },
+): R => ((pattern as any)[tag.tag] || (pattern._ as any))(tag.value)
 
-export const matchString =
-  <R, T extends string = string>(key: T, pattern: {
+export const matchString = <R, T extends string = string>(
+  key: T,
+  pattern: {
     [key in T | '_']?: (key: key) => R
-  }): R => ((pattern as any)[key] || (pattern._ as any))(key)
+  },
+): R => ((pattern as any)[key] || (pattern._ as any))(key)
 
 type Tag<N, V> = { tag: N; value: V }
 export type Enum<T> = { [N in keyof T]: Tag<N, T[N]> }[keyof T]
@@ -26,4 +30,3 @@ export const constructors = <T extends Tag<string, any>>(): {
       },
     },
   ) as any
-

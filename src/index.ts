@@ -12,7 +12,7 @@ const EVENT_HANDLERS = {
 const PROPERTIES = [
   '--cssx-children',
   '--cssx-text',
-  '--cssx-disgustingly-set-innerhtml'
+  '--cssx-disgustingly-set-innerhtml',
 ]
 
 const injectStyles = () => {
@@ -25,7 +25,7 @@ const injectStyles = () => {
   const properties = [...PROPERTIES, ...Object.values(EVENT_HANDLERS)]
 
   $style.textContent = `.cssx-layer {
-    ${properties.map((p) => `${p}: ${UNSET_PROPERTY_VALUE};`).join(' ')}
+    ${properties.map(p => `${p}: ${UNSET_PROPERTY_VALUE};`).join(' ')}
   }`
 
   document.body.appendChild($style)
@@ -45,8 +45,8 @@ const getEvalActions = ($element: Element, event: any): EvalActions => ({
   addClass: async (id, cls) => document.getElementById(id)?.classList.add(cls),
   removeClass: async (id, cls) =>
     document.getElementById(id)?.classList.remove(cls),
-  delay: (delay) => new Promise((res) => setTimeout(res, delay)),
-  jsEval: async (js) => (0, eval)(js),
+  delay: delay => new Promise(res => setTimeout(res, delay)),
+  jsEval: async js => (0, eval)(js),
   loadCssx: async (id, url) =>
     new Promise((resolve, reject) => {
       const $link = Object.assign(document.createElement('link'), {
@@ -66,7 +66,7 @@ const getEvalActions = ($element: Element, event: any): EvalActions => ({
       }
       document.body.appendChild($link)
     }),
-  getVariable: async (varName) => getPropertyValue($element, varName),
+  getVariable: async varName => getPropertyValue($element, varName),
   updateVariable: async (targetId, varName, value) => {
     const $el = document.getElementById(targetId)
     if ($el) {
@@ -76,15 +76,21 @@ const getEvalActions = ($element: Element, event: any): EvalActions => ({
   setAttribute: async (name, value) => {
     $element.setAttribute(name, value)
   },
-  withEvent: async (fn) => fn(event),
-  getFormData: async () => $element.nodeName === 'FORM' ? new FormData($element as HTMLFormElement) : undefined,
+  withEvent: async fn => fn(event),
+  getFormData: async () =>
+    $element.nodeName === 'FORM'
+      ? new FormData($element as HTMLFormElement)
+      : undefined,
   sendRequest: async ({ url, method, data }) => {
     await fetch(url, { method, body: data })
     // TODO: Handle response?
   },
 })
 
-const handleEvents = async ($element: Element, isNewElement: boolean = false) => {
+const handleEvents = async (
+  $element: Element,
+  isNewElement: boolean = false,
+) => {
   for (const [eventType, property] of Object.entries(EVENT_HANDLERS)) {
     const handlerExpr = getPropertyValue($element, property)
 
@@ -106,17 +112,17 @@ const handleEvents = async ($element: Element, isNewElement: boolean = false) =>
   }
 }
 
-let nodeCount = 0
-const manageElement = async ($element: Element, isNewElement: boolean = false) => {
-  if (nodeCount++ > 100) return // NOTE: Temporary. To prevent infinite rec
-
+const manageElement = async (
+  $element: Element,
+  isNewElement: boolean = false,
+) => {
   await handleEvents($element, isNewElement)
 
   const text = getPropertyValue($element, '--cssx-text')
   if (text) $element.textContent = text
 
   const html = getPropertyValue($element, '--cssx-disgustingly-set-innerhtml')
-  if (html) $element.innerHTML = html
+  if (html) $element.innerHTML = html.replace(/(^'|")|('|"$)/g, '')
 
   const childrenIds = getChildrenIds($element)
   if (childrenIds.length > 0) {
@@ -127,12 +133,13 @@ const manageElement = async ($element: Element, isNewElement: boolean = false) =
     $element.appendChild($childrenRoot)
 
     for (const childId of childrenIds) {
-      let isNewElement = false;
       const selector = childId.split('#')
       const [tag, id] = selector.length >= 2 ? selector : ['div', ...selector]
-      const $child =
-        $childrenRoot.querySelector(`:scope > #${id}`) ??
-        (isNewElement = true, Object.assign(document.createElement(tag || 'div'), { id }))
+      let $child = $childrenRoot.querySelector(`:scope > #${id}`)
+      const isNewElement = !$child
+      if (!$child) {
+        $child = Object.assign(document.createElement(tag || 'div'), { id })
+      }
       $childrenRoot.appendChild($child)
       await manageElement($child, isNewElement)
     }

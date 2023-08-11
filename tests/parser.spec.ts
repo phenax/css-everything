@@ -49,7 +49,7 @@ describe('parser', () => {
     ])
 
     expect(parse(` 'hello world toodles \" nice double quote there' `)).toEqual(
-      [Expr.LiteralString(`hello world toodles \" nice double quote there`)]
+      [Expr.LiteralString(`hello world toodles \" nice double quote there`)],
     )
   })
 

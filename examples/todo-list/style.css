@@ -15,14 +15,11 @@ body {
   --cssx-on-click: update(
     todo-container,
     --todo-list,
-    list-append(
-      var(--todo-list),
-      tuple(get-attr(input-field, value), false)
-    )
+    list-append(var(--todo-list), tuple(get-attr(input-field, value), false))
   );
 }
 #submit-btn::after {
-  content: "Submit";
+  content: 'Submit';
 }
 
 #todo-list {
@@ -30,9 +27,7 @@ body {
 }
 
 #todo-item {
-
 }
 #todo-item::after {
   content: var(--todo-item);
 }
-

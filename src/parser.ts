@@ -8,7 +8,7 @@ export type Expr = Enum<{
   Identifier: string
   VarIdentifier: string
   LiteralString: string
-  LiteralNumber: { value: number, unit: CSSUnit }
+  LiteralNumber: { value: number; unit: CSSUnit }
 }>
 
 export const Expr = constructors<Expr>()
@@ -31,9 +31,9 @@ const callExprParser = (input: string) =>
   P.map(
     P.zip2(
       consumeWhitespace(identifierParser),
-      parens(consumeWhitespace(P.sepBy(exprParser, comma)))
+      parens(consumeWhitespace(P.sepBy(exprParser, comma))),
     ),
-    ([name, args]) => Expr.Call({ name, args })
+    ([name, args]) => Expr.Call({ name, args }),
   )(input)
 
 const stringLiteralParser: P.Parser<Expr> = P.map(
@@ -41,14 +41,15 @@ const stringLiteralParser: P.Parser<Expr> = P.map(
     P.between(singleQuote, P.regex(/^[^']*/), singleQuote),
     P.between(doubleQuote, P.regex(/^[^"]*/), doubleQuote),
   ]),
-  Expr.LiteralString
+  Expr.LiteralString,
 )
 
 const numberParser = P.regex(/^[-+]?((\d*\.\d+)|\d+)/)
 
 const numberExprParser: P.Parser<Expr> = P.map(
   P.zip2(numberParser, P.optional(P.regex(/^(s|ms)/i))),
-  ([value, unit]) => Expr.LiteralNumber({ value: Number(value), unit: (unit ?? '') as CSSUnit }),
+  ([value, unit]) =>
+    Expr.LiteralNumber({ value: Number(value), unit: (unit ?? '') as CSSUnit }),
 )
 
 const exprParser: P.Parser<Expr> = P.or([

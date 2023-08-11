@@ -12,7 +12,11 @@ export type EvalActions = {
   setAttribute(name: string, value: string): Promise<void>
   withEvent(fn: (e: any) => void): Promise<void>
   getFormData(): Promise<FormData | undefined>
-  sendRequest(_: { method: string, url: string, data: FormData | undefined }): Promise<void>
+  sendRequest(_: {
+    method: string
+    url: string
+    data: FormData | undefined
+  }): Promise<void>
   // calculate ??
 }
 
@@ -20,19 +24,19 @@ type EvalValue = string | undefined | void
 
 export const evalExpr = async (
   expr: Expr,
-  actions: EvalActions
+  actions: EvalActions,
 ): Promise<EvalValue> =>
   match<Promise<EvalValue>, Expr>(expr, {
     Call: async ({ name, args }) => getFunctions(name, args, actions),
-    LiteralString: async (s) => s,
+    LiteralString: async s => s,
     LiteralNumber: async ({ value, unit }) =>
       matchString<number, CSSUnit>(unit, {
         s: () => value * 1000,
         _: () => value,
       }).toString(),
-    Identifier: async (s) => s,
-    VarIdentifier: async (s) => s,
-    _: async (_) => undefined,
+    Identifier: async s => s,
+    VarIdentifier: async s => s,
+    _: async _ => undefined,
   })
 
 const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
@@ -93,9 +97,11 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
     },
     'prevent-default': async () => actions.withEvent(e => e.preventDefault()),
 
-    'request': async () => {
+    request: async () => {
       const url = await evalExpr(args[0], actions)
-      const method = args[1] ? (await evalExpr(args[1], actions) ?? 'post') : 'post'
+      const method = args[1]
+        ? (await evalExpr(args[1], actions)) ?? 'post'
+        : 'post'
 
       if (url) {
         const data = await actions.getFormData()
