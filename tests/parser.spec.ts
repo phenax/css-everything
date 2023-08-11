@@ -72,5 +72,56 @@ describe('parser', () => {
         ],
       }),
     ])
+
+    expect(parse(`update(state-container, --count, var(--count))`)).toEqual([
+      Expr.Call({
+        name: 'update',
+        args: [
+          Expr.Identifier('state-container'),
+          Expr.VarIdentifier('--count'),
+          Expr.Call({
+            name: 'var',
+            args: [Expr.VarIdentifier('--count')],
+          }),
+        ],
+      }),
+    ])
+  })
+
+  it('should parse number and css units', () => {
+    expect(parse(`100`)).toEqual([Expr.LiteralNumber({ value: 100, unit: '' })])
+    expect(parse(`100s`)).toEqual([
+      Expr.LiteralNumber({ value: 100, unit: 's' }),
+    ])
+    expect(parse(`100ms`)).toEqual([
+      Expr.LiteralNumber({ value: 100, unit: 'ms' }),
+    ])
+    expect(parse(`3.82`)).toEqual([
+      Expr.LiteralNumber({ value: 3.82, unit: '' }),
+    ])
+    expect(parse(`3.82s`)).toEqual([
+      Expr.LiteralNumber({ value: 3.82, unit: 's' }),
+    ])
+    expect(parse(`3.82ms`)).toEqual([
+      Expr.LiteralNumber({ value: 3.82, unit: 'ms' }),
+    ])
+    expect(parse(`-100`)).toEqual([
+      Expr.LiteralNumber({ value: -100, unit: '' }),
+    ])
+    expect(parse(`-100s`)).toEqual([
+      Expr.LiteralNumber({ value: -100, unit: 's' }),
+    ])
+    expect(parse(`-100ms`)).toEqual([
+      Expr.LiteralNumber({ value: -100, unit: 'ms' }),
+    ])
+    expect(parse(`-3.82`)).toEqual([
+      Expr.LiteralNumber({ value: -3.82, unit: '' }),
+    ])
+    expect(parse(`-3.82s`)).toEqual([
+      Expr.LiteralNumber({ value: -3.82, unit: 's' }),
+    ])
+    expect(parse(`-3.82ms`)).toEqual([
+      Expr.LiteralNumber({ value: -3.82, unit: 'ms' }),
+    ])
   })
 })

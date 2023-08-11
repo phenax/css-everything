@@ -73,3 +73,11 @@ export const sepBy = <A>(parser: Parser<A>, sepP: Parser<any>): Parser<Array<A>>
     Err: _ => Result.Ok({ value: [], input: originalInput }),
   })
 
+export const optional = <A>(parser: Parser<A>): Parser<undefined | A> => input => {
+  const result = parser(input)
+  return match(result, {
+    Ok: _ => result,
+    Err: _ => Result.Ok({ value: undefined, input })
+  })
+}
+

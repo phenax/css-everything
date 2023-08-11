@@ -1,11 +1,14 @@
 import { Enum, constructors, match } from './utils/adt'
 import * as P from './utils/parser-comb'
 
+type Unit = '' | 's' | 'ms'
+
 export type Expr = Enum<{
   Call: { name: string; args: Expr[] }
   Identifier: string
   VarIdentifier: string
   LiteralString: string
+  LiteralNumber: { value: number, unit: Unit }
 }>
 
 export const Expr = constructors<Expr>()
@@ -41,9 +44,17 @@ const stringLiteralParser: P.Parser<Expr> = P.map(
   Expr.LiteralString
 )
 
+const numberParser = P.regex(/^[-+]?((\d*\.\d+)|\d+)/)
+
+const numberExprParser: P.Parser<Expr> = P.map(
+  P.zip2(numberParser, P.optional(P.regex(/^(s|ms)/i))),
+  ([value, unit]) => Expr.LiteralNumber({ value: Number(value), unit: (unit ?? '') as Unit }),
+)
+
 const exprParser: P.Parser<Expr> = P.or([
   stringLiteralParser,
   varIdentifierExprParser,
+  numberExprParser,
   callExprParser,
   identifierExprParser,
 ])
