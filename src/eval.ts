@@ -6,7 +6,7 @@ export type Dependencies = {
   removeClass(id: string, classes: string): Promise<void>
   delay(num: number): Promise<void>
   jsEval(js: string): Promise<any>
-  // requestGetCss(url: string): Promise<string>
+  // loadCssx(id: string, url: string): Promise<string>
   // getVarable(name: string, def?: string): Promise<string>
   // updateVariable(id: string, varName: string, value: string): Promise<void>
   // calculate ??

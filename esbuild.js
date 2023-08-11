@@ -9,6 +9,6 @@ esbuild
     minify: true,
     splitting: false,
     format: 'iife',
-    target: ['es2015']
+    target: ['es2015'],
   })
   .catch(e => (console.error(e), process.exit(1)))

@@ -8,7 +8,6 @@
   "scripts": {
     "build": "node esbuild.js",
     "serve": "serve -p 3000 .",
-    "watch": "yarn build",
     "test": "jest"
   },
   "devDependencies": {
