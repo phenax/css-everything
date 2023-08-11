@@ -91,18 +91,17 @@ const manageElement = async ($element: Element) => {
   const childrenIds = getChildrenIds($element)
 
   if (childrenIds.length > 0) {
+    const LAYER_CLASS = 'cssx-layer'
     const $childrenRoot =
-      $element.querySelector(':scope > .cssx-layer') ??
-      Object.assign(document.createElement('div'), {
-        className: 'cssx-layer',
-      })
+      $element.querySelector(`:scope > .${LAYER_CLASS}`) ??
+      Object.assign(document.createElement('div'), { className: LAYER_CLASS })
     $element.appendChild($childrenRoot)
 
-    for (const id of childrenIds) {
-      // TODO: Allow adding node types other than div
+    for (const childId of childrenIds) {
+      const [tag, id] = childId.split('#')
       const $child =
         $childrenRoot.querySelector(`:scope > #${id}`) ??
-        Object.assign(document.createElement('div'), { id })
+        Object.assign(document.createElement(tag || 'div'), { id })
       $childrenRoot.appendChild($child)
       await manageElement($child)
     }

@@ -1,5 +1,5 @@
 body {
-  --cssx-children: load-btn output-container;
+  --cssx-children: button#load-btn output-container;
 }
 
 #load-btn {
