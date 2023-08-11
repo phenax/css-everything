@@ -39,25 +39,26 @@ const getEvalActions = ($element: Element): EvalActions => ({
     document.getElementById(id)?.classList.remove(cls),
   delay: (delay) => new Promise((res) => setTimeout(res, delay)),
   jsEval: async (js) => (0, eval)(js),
-  loadCssx: async (id, url) => new Promise((resolve, reject) => {
-    const $link = Object.assign(document.createElement('link'), {
-      href: url,
-      rel: 'stylesheet',
-    })
-    $link.onload = () => {
-      const $el = document.getElementById(id);
-      // NOTE: Maybe create and append to body if no root?
-      if ($el) {
-        manageElement($el)
-        resolve(id)
-      } else {
-        console.error(`[CSSX] Unable to find root for ${id}`)
-        reject(`[CSSX] Unable to find root for ${id}`)
+  loadCssx: async (id, url) =>
+    new Promise((resolve, reject) => {
+      const $link = Object.assign(document.createElement('link'), {
+        href: url,
+        rel: 'stylesheet',
+      })
+      $link.onload = () => {
+        const $el = document.getElementById(id)
+        // NOTE: Maybe create and append to body if no root?
+        if ($el) {
+          manageElement($el)
+          resolve(id)
+        } else {
+          console.error(`[CSSX] Unable to find root for ${id}`)
+          reject(`[CSSX] Unable to find root for ${id}`)
+        }
       }
-    }
-    document.body.appendChild($link);
-  }),
-  getVariable: async varName => getPropertyValue($element, varName),
+      document.body.appendChild($link)
+    }),
+  getVariable: async (varName) => getPropertyValue($element, varName),
   updateVariable: async (targetId, varName, value) => {
     const $el = document.getElementById(targetId)
     if ($el) {

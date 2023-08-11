@@ -3,8 +3,10 @@
   - (x) `load-cssx` functions
   - (x) `get-variable`
   - (x) `update-variable`
-  - ( ) Use css units for `delay` function
+  - (x) Use css units for `delay` function
+  - ( ) Specify node type - `button(id)` or `button#id`
+  - ( ) `--cssx-attr-*` for attributes
+  - ( ) `--cssx-text` (and maybe `--cssx-html`?)
   - ( ) Improve error messages
-  - ( ) Specify node type + attributes
   - ( ) Evaluate `calc`?
   - ( ) `list` & `tuple` data structures?

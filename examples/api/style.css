@@ -15,7 +15,7 @@ body {
     load-cssx(output-container-content, './content.css')
     remove-class(output-container, 'loading')
     remove-class(load-btn, 'loading')
-    delay('50')
+    delay(0.7s)
     js-eval('alert("Loaded page")')
   ;
 }

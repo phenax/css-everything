@@ -6,7 +6,7 @@ export const match =
   }): R => ((pattern as any)[tag.tag] || (pattern._ as any))(tag.value)
 
 export const matchString =
-  <R, T extends string>(key: T, pattern: {
+  <R, T extends string = string>(key: T, pattern: {
     [key in T | '_']?: (key: key) => R
   }): R => ((pattern as any)[key] || (pattern._ as any))(key)
 
