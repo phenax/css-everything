@@ -6,7 +6,7 @@
   - (x) Use css units for `delay` function
   - (x) Specify node type - `button(id)` or `button#id`
   - (x) attributes
-  - ( ) `--cssx-text` (and maybe `--cssx-html`?)
+  - (x) `--cssx-text` (and maybe `--cssx-html`?)
   - ( ) Improve error messages
   - ( ) Evaluate `calc`?
   - ( ) `list` & `tuple` data structures?

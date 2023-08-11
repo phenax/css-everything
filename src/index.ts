@@ -9,6 +9,12 @@ const EVENT_HANDLERS = {
   submit: '--cssx-on-submit',
 }
 
+const PROPERTIES = [
+  '--cssx-children',
+  '--cssx-text',
+  '--cssx-disgustingly-set-innerhtml'
+]
+
 const injectStyles = () => {
   const STYLE_TAG_CLASS = 'cssx-style-root'
   if (document.querySelector(`.${STYLE_TAG_CLASS}`)) return
@@ -16,7 +22,7 @@ const injectStyles = () => {
   const $style = document.createElement('style')
   $style.className = STYLE_TAG_CLASS
 
-  const properties = ['--cssx-children', ...Object.values(EVENT_HANDLERS)]
+  const properties = [...PROPERTIES, ...Object.values(EVENT_HANDLERS)]
 
   $style.textContent = `.cssx-layer {
     ${properties.map((p) => `${p}: ${UNSET_PROPERTY_VALUE};`).join(' ')}
@@ -105,8 +111,14 @@ const manageElement = async ($element: Element, isNewElement: boolean = false) =
   if (nodeCount++ > 100) return // NOTE: Temporary. To prevent infinite rec
 
   await handleEvents($element, isNewElement)
-  const childrenIds = getChildrenIds($element)
 
+  const text = getPropertyValue($element, '--cssx-text')
+  if (text) $element.textContent = text
+
+  const html = getPropertyValue($element, '--cssx-disgustingly-set-innerhtml')
+  if (html) $element.innerHTML = html
+
+  const childrenIds = getChildrenIds($element)
   if (childrenIds.length > 0) {
     const LAYER_CLASS = 'cssx-layer'
     const $childrenRoot =
