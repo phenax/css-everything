@@ -1,4 +1,4 @@
-import { Dependencies, evalExpr } from './eval'
+import { EvalActions, evalExpr } from './eval'
 import { parse } from './parser'
 
 const UNSET_PROPERTY_VALUE = '<unset>'
@@ -33,12 +33,37 @@ const getChildrenIds = ($element: Element) => {
   return value.split(/(\s*,\s*)|\s+/g).filter(Boolean)
 }
 
-const evalDeps = (_el: Element): Dependencies => ({
+const getEvalActions = ($element: Element): EvalActions => ({
   addClass: async (id, cls) => document.getElementById(id)?.classList.add(cls),
   removeClass: async (id, cls) =>
     document.getElementById(id)?.classList.remove(cls),
   delay: (delay) => new Promise((res) => setTimeout(res, delay)),
   jsEval: async (js) => (0, eval)(js),
+  loadCssx: async (id, url) => new Promise((resolve, reject) => {
+    const $link = Object.assign(document.createElement('link'), {
+      href: url,
+      rel: 'stylesheet',
+    })
+    $link.onload = () => {
+      const $el = document.getElementById(id);
+      // NOTE: Maybe create and append to body if no root?
+      if ($el) {
+        manageElement($el)
+        resolve(id)
+      } else {
+        console.error(`[CSSX] Unable to find root for ${id}`)
+        reject(`[CSSX] Unable to find root for ${id}`)
+      }
+    }
+    document.body.appendChild($link);
+  }),
+  getVariable: async varName => getPropertyValue($element, varName),
+  updateVariable: async (targetId, varName, value) => {
+    const $el = document.getElementById(targetId)
+    if ($el) {
+      $el.style.setProperty(varName, JSON.stringify(value))
+    }
+  },
 })
 
 const handleEvents = async ($element: Element) => {
@@ -50,7 +75,7 @@ const handleEvents = async ($element: Element) => {
         console.log(`Triggered event: ${event}`)
         const exprs = parse(handlerExpr)
         for (const expr of exprs) {
-          await evalExpr(expr, evalDeps($element))
+          await evalExpr(expr, getEvalActions($element))
         }
       }
     }
@@ -73,6 +98,7 @@ const manageElement = async ($element: Element) => {
     $element.appendChild($childrenRoot)
 
     for (const id of childrenIds) {
+      // TODO: Allow adding node types other than div
       const $child =
         $childrenRoot.querySelector(`:scope > #${id}`) ??
         Object.assign(document.createElement('div'), { id })

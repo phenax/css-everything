@@ -4,17 +4,18 @@ body {
 
 #load-btn {
   display: inline-block;
-  border: 1px solid gray;
+  background: #5180e9;
+  color: #000;
   padding: 0.5rem 1rem;
   cursor: pointer;
 
   --cssx-on-click:
     add-class(output-container, 'loading')
     add-class(load-btn, 'loading')
-    delay('2000')
+    load-cssx(output-container-content, './content.css')
     remove-class(output-container, 'loading')
-    add-class(output-container, 'loaded')
     remove-class(load-btn, 'loading')
+    delay('50')
     js-eval('alert("Loaded page")')
   ;
 }
@@ -29,8 +30,5 @@ body {
 }
 #output-container.loading::after {
   content: "Loading...";
-}
-#output-container.loaded::after {
-  content: "This content is loaded my guy";
 }
 

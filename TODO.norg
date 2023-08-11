@@ -1,9 +1,10 @@
 * Tasks
   - (x) Hydrate existing elements instead of re-creating
-  - ( ) `load-cssx` functions
+  - (x) `load-cssx` functions
+  - (x) `get-variable`
+  - (x) `update-variable`
   - ( ) Use css units for `delay` function
-  - ( ) `get-variable`
-  - ( ) `update-variable`
+  - ( ) Improve error messages
+  - ( ) Specify node type + attributes
   - ( ) Evaluate `calc`?
   - ( ) `list` & `tuple` data structures?
-  - ( ) Non div elements
