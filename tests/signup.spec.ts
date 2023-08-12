@@ -34,12 +34,10 @@ describe('signup example', () => {
     expect($form).not.toBeVisible()
     expect($form.nodeName).toBe('FORM')
 
-    // Click and wait for button to get active class (handles delay)
+    // Click and wait for button to get hidden class (handles delay)
     fireEvent.click($showFormBtn)
-    await waitFor(() =>
-      expect($showFormBtn.classList.contains('active')).toBe(true),
-    )
 
+    await waitFor(() => expect($showFormBtn).not.toBeVisible())
     expect($form).toBeVisible()
   })
 
@@ -47,9 +45,7 @@ describe('signup example', () => {
     beforeEach(async () => {
       const $showFormBtn = document.getElementById('show-form-btn')!
       fireEvent.click($showFormBtn)
-      await waitFor(() =>
-        expect($showFormBtn.classList.contains('active')).toBe(true),
-      )
+      await waitFor(() => expect($showFormBtn).not.toBeVisible())
       const $form = document.getElementById('signup-form')!
       expect($form).toBeVisible()
       await delay(100) // Wait for mounting
@@ -64,6 +60,8 @@ describe('signup example', () => {
       const $password = getByTestId<HTMLInputElement>(document.body, 'password')
       $password.value = 'password'
 
+      await delay(2000)
+
       // Submit form
       const $submitBtn = getByText(document.body, 'Submit')
       fireEvent.click($submitBtn)
@@ -72,12 +70,14 @@ describe('signup example', () => {
       await waitFor(() =>
         expect($form.classList.contains('submitting')).toBe(true),
       )
+      expect($submitBtn).toBeDisabled()
 
       // Should add submitted class to form and remove submitting
       await waitFor(() =>
         expect($form.classList.contains('submitted')).toBe(true),
       )
       expect($form.classList.contains('submitting')).toBe(false)
+      expect($submitBtn).toBeEnabled()
 
       // Should have made a request to post form data
       expect(window.fetch).toHaveBeenCalledTimes(1)

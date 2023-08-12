@@ -73,8 +73,17 @@ const getEvalActions = ($element: Element, event: any): EvalActions => ({
       $el.style.setProperty(varName, JSON.stringify(value))
     }
   },
-  setAttribute: async (name, value) => {
-    $element.setAttribute(name, value)
+  setAttribute: async (id, name, value) => {
+    const $el = id ? document.getElementById(id) : $element
+    if (value) {
+      $el?.setAttribute(name, value)
+    } else {
+      $el?.removeAttribute(name)
+    }
+  },
+  getAttribute: async (id, name) => {
+    const $el = id ? document.getElementById(id) : $element
+    return $el?.getAttribute(name) ?? undefined
   },
   withEvent: async fn => fn(event),
   getFormData: async () =>

@@ -11,8 +11,13 @@
         content: 'Show form';
       }
       #show-form-btn {
-        --cssx-on-click: add-class(signup-form, 'visible')
-          add-class(show-form-btn, 'active');
+        /* prettier-ignore */
+        --cssx-on-click:
+          add-class(signup-form, 'visible')
+          add-class(show-form-btn, 'hidden');
+      }
+      #show-form-btn.hidden {
+        display: none;
       }
 
       #signup-form {
@@ -20,22 +25,32 @@
 
         --cssx-children: input#email input#password button#submit-btn;
 
-        --cssx-on-submit: prevent-default() add-class(signup-form, 'submitting')
-          delay(0.2s) request('http://example.com/submit/api', POST)
-          remove-class(signup-form, 'submitting')
-          add-class(signup-form, 'submitted');
+        /* prettier-ignore */
+        --cssx-on-submit: prevent-default()
+          set-attr(submit-btn, 'disabled', 'disabled')       /* disable submit button */
+          add-class(signup-form, 'submitting')               /* enable state "submitting" */
+          delay(0.2s)                                        /* fake delay */
+          request('http://example.com/submit/api', POST)     /* post form data to api */
+          remove-class(signup-form, 'submitting')            /* disable state "submitting" */
+          set-attr(submit-btn, 'disabled', '')               /* re-enable submit button */
+          add-class(signup-form, 'submitted')                /* show user that the form is submitted */
+        ;
       }
       #signup-form.visible {
         display: block;
       }
 
       #email {
-        --cssx-on-mount: set-attr('name', 'email')
-          set-attr('data-testid', 'email');
+        /* prettier-ignore */
+        --cssx-on-mount:
+          set-attr('name', 'email')
+          set-attr('data-testid', attr('name'));
       }
       #password {
-        --cssx-on-mount: set-attr('name', 'password')
-          set-attr('data-testid', 'password');
+        /* prettier-ignore */
+        --cssx-on-mount:
+          set-attr('name', 'password')
+          set-attr('data-testid', attr('name'));
       }
       #submit-btn {
         --cssx-on-mount: set-attr('type', 'submit');

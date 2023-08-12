@@ -9,7 +9,15 @@ export interface EvalActions {
   loadCssx(id: string, url: string): Promise<string>
   getVariable(name: string): Promise<string | undefined>
   updateVariable(id: string, varName: string, value: string): Promise<void>
-  setAttribute(name: string, value: string): Promise<void>
+  getAttribute(
+    id: string | undefined,
+    name: string,
+  ): Promise<string | undefined>
+  setAttribute(
+    id: string | undefined,
+    name: string,
+    value: string,
+  ): Promise<void>
   withEvent(fn: (e: any) => void): Promise<void>
   getFormData(): Promise<FormData | undefined>
   sendRequest(_: {
@@ -88,10 +96,21 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
     },
 
     'set-attr': async () => {
-      const name = await evalExpr(args[0], actions)
-      const value = await evalExpr(args[1], actions)
-      if (name && value) {
-        actions.setAttribute(name, value)
+      const [id, name, value] =
+        args.length >= 3
+          ? await evalArgs(args, 3, actions)
+          : [undefined, ...(await evalArgs(args, 2, actions))]
+      if (name) {
+        actions.setAttribute(id as string | undefined, name, value ?? '')
+      }
+    },
+    attr: async () => {
+      const [id, name] =
+        args.length >= 2
+          ? await evalArgs(args, 2, actions)
+          : [undefined, await evalExpr(args[0], actions)]
+      if (name) {
+        return actions.getAttribute(id as string | undefined, name)
       }
     },
     'prevent-default': async () => actions.withEvent(e => e.preventDefault()),
@@ -108,3 +127,9 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
 
     _: () => Promise.reject(new Error('not supposed to be here')),
   })
+
+export const evalArgs = (
+  args: Array<Expr>,
+  count: number,
+  actions: EvalActions,
+) => Promise.all(args.slice(0, count).map(e => evalExpr(e, actions)))
