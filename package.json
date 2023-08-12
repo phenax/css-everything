@@ -1,12 +1,12 @@
 {
-  "name": "cssx",
+  "name": "@cssx/render",
   "version": "0.0.0",
   "main": "src/index.ts",
   "repository": "__",
   "author": "Akshay Nair <phenax5@gmail.com>",
   "license": "MIT",
   "scripts": {
-    "build": "node esbuild.js",
+    "build": "tsc && node esbuild.js",
     "serve": "serve -p 3000 .",
     "format": "prettier --write './{src,tests}/**/*.{ts,html,css}' './examples/**/*.{html,css}'",
     "lint": "eslint ./src",

@@ -7,7 +7,7 @@ import {
 import { readFile } from 'node:fs/promises'
 import '@testing-library/jest-dom'
 
-import { render } from '../src/renderer'
+import { render } from '../src'
 
 async function loadFixture(type: string) {
   document.documentElement.innerHTML = await readFile(

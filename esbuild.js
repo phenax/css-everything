@@ -2,8 +2,8 @@ const esbuild = require('esbuild')
 
 esbuild
   .build({
-    entryPoints: ['src/index.ts'],
-    outdir: 'dist',
+    entryPoints: ['src/renderer.ts'],
+    outfile: 'dist/renderer/index.js',
     bundle: true,
     sourcemap: true,
     minify: true,
