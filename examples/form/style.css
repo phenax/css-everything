@@ -14,8 +14,6 @@ body * {
   padding: 0.5rem 1rem;
   cursor: pointer;
 
-  --cssx-on-mount: set-attr('type', 'button');
-
   --cssx-on-click: add-class(signup-page, 'loading')
     add-class(signup-btn, 'loading') delay(0.5s)
     load-cssx(signup-page-content, './signup.css')

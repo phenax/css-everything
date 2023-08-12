@@ -1,7 +1,7 @@
 import { CSSUnit, Expr } from './parser'
 import { match, matchString } from './utils/adt'
 
-export type EvalActions = {
+export interface EvalActions {
   addClass(id: string, classes: string): Promise<void>
   removeClass(id: string, classes: string): Promise<void>
   delay(num: number): Promise<void>
@@ -98,9 +98,7 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
 
     request: async () => {
       const url = await evalExpr(args[0], actions)
-      const method = args[1]
-        ? (await evalExpr(args[1], actions)) ?? 'post'
-        : 'post'
+      const method = (args[1] && (await evalExpr(args[1], actions))) ?? 'post'
 
       if (url) {
         const data = await actions.getFormData()

@@ -4,7 +4,7 @@
   max-width: 700px;
   margin: 1rem auto;
 
-  --cssx-disgustingly-set-innerhtml: "<h1 class= 'form-title'>Sign-<b>Up</b></h1>";
+  --cssx-disgustingly-set-innerhtml: "<h1 class='form-title'>Sign-<b>Up</b></h1>";
 
   --cssx-children: form#form;
   --count: '0';

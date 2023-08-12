@@ -8,8 +8,12 @@
   - (x) attributes
   - (x) `--cssx-text` (and maybe `--cssx-html`?)
   - (x) dom tests
-  - ( ) `add-class` & `remove-class` should use self if id is not specified
+  - ( ) keyboard events
+  - ( ) `attr` function
+  - ( ) j
   - ( ) Evaluate `calc`
   - ( ) Additional events
   - ( ) Improve error messages
+  - ( ) `set-attr` should allow specifying id?
+  - ( ) `add-class` & `remove-class` should use self if id is not specified?
   - ( ) `list` & `tuple` data structures?
