@@ -11,6 +11,15 @@
   - (x) `attr` function
   - (x) `set-attr` should allow specifying id?
   - (x) `set-attr` + remove attribute?
+  - (x) `pair` parsing
+  - (x) `selector` parsing
+  - (x) `map` data structure
+  - (x) component system (with variables. `instance(button#my-btn)`)
+  - ( ) instance access
+  - ( ) More complex selector support for cssx-children
+  - ( ) `add-element` & `remove-element`
+  - ( ) string concatenation
+  - ( ) `request` error handling
   - ( ) keyboard events
   - ( ) Evaluate `calc`
   - ( ) Additional events

@@ -1,0 +1,49 @@
+<html lang="en">
+  <head>
+    <title>Task destroyer</title>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        --cssx-children: form#task-input-form #task-list;
+      }
+
+      #task-input-form {
+        --cssx-on-submit:
+          prevent-default()
+          js-eval('console.log("todo: implement add new task")')
+        ;
+
+        --cssx-children:
+          input#text-input[data-testid="add-task-input"]
+          button#create-task-btn[type="submit"][data-testid="add-task-btn"]
+        ;
+      }
+
+      #text-input {}
+      #create-task-btn {
+        --cssx-text: Submit;
+      }
+
+      #task-list {
+        --cssx-children:
+          instance(li#task-item, map(
+            --text: "hello world",
+            --checked: 0
+          ))
+          instance(li#task-item, map(
+            --text: "coolio stuff",
+            --checked: 0
+          ))
+        ;
+      }
+
+      [data-instance="task-item"] {
+        --text: "default text";
+        --checked: 0;
+
+        --cssx-text: var(--text);
+      }
+    </style>
+  </head>
+  <body></body>
+</html>

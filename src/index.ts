@@ -1,5 +1,7 @@
 import { EvalActions, evalExpr } from './eval'
+import { extractDeclaration, DeclarationEval } from './declarations'
 import { parse } from './parser'
+import { match } from './utils/adt'
 
 const UNSET_PROPERTY_VALUE = '<unset>'
 const EVENT_HANDLERS = {
@@ -36,9 +38,12 @@ export const getPropertyValue = ($element: Element, prop: string) => {
   return !value || value === UNSET_PROPERTY_VALUE ? '' : value
 }
 
-export const getChildrenIds = ($element: Element) => {
+export const getDeclarations = (
+  $element: Element,
+  actions: EvalActions,
+): Promise<Array<DeclarationEval>> => {
   const value = getPropertyValue($element, '--cssx-children')
-  return value.split(/(\s*,\s*)|\s+/g).filter(Boolean)
+  return extractDeclaration(value, actions)
 }
 
 const getEvalActions = ($element: Element, event: any): EvalActions => ({
@@ -132,22 +137,36 @@ export const manageElement = async (
   const html = getPropertyValue($element, '--cssx-disgustingly-set-innerhtml')
   if (html) $element.innerHTML = html.replace(/(^'|")|('|"$)/g, '')
 
-  const childrenIds = getChildrenIds($element)
-  if (childrenIds.length > 0) {
+  const declarations = await getDeclarations(
+    $element,
+    getEvalActions($element, null),
+  )
+  if (declarations.length > 0) {
     const LAYER_CLASS = 'cssx-layer'
     const $childrenRoot =
       $element.querySelector(`:scope > .${LAYER_CLASS}`) ??
       Object.assign(document.createElement('div'), { className: LAYER_CLASS })
     $element.appendChild($childrenRoot)
 
-    for (const childId of childrenIds) {
-      const selector = childId.split('#')
-      const [tag, id] = selector.length >= 2 ? selector : ['div', ...selector]
+    for (const declaration of declarations) {
+      const { tag, id, selectors } = declaration.selector
+      const tagName = tag || 'div'
+
       let $child = $childrenRoot.querySelector(`:scope > #${id}`)
       const isNewElement = !$child
       if (!$child) {
-        $child = Object.assign(document.createElement(tag || 'div'), { id })
+        $child = Object.assign(document.createElement(tagName), { id })
       }
+
+      // Add selectors
+      for (const selector of selectors) {
+        match(selector, {
+          ClassName: cls =>
+            !$child?.classList.contains(cls) && $child?.classList.add(cls),
+          Attr: ([key, val]) => $child?.setAttribute(key, val),
+        })
+      }
+
       $childrenRoot.appendChild($child)
       await manageElement($child, isNewElement)
     }
