@@ -4,24 +4,12 @@ import {
   getByText,
   getByTestId,
 } from '@testing-library/dom'
-import { readFile } from 'node:fs/promises'
 import '@testing-library/jest-dom'
-
-import { render } from '../src'
-
-async function loadFixture(type: string) {
-  document.documentElement.innerHTML = await readFile(
-    `./tests/fixtures/${type}/index.html`,
-    'utf8',
-  )
-  await render({ root: document.body })
-}
-
-const delay = (delayMs: number) => new Promise(res => setTimeout(res, delayMs))
+import { delay, loadHTMLFixture } from './util'
 
 describe('signup example', () => {
   beforeEach(async () => {
-    await loadFixture('signup')
+    await loadHTMLFixture('signup')
     window.fetch = jest.fn() as any
   })
 
