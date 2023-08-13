@@ -70,6 +70,15 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
       }
     },
 
+    if: async () => {
+      const cond = await evalExpr(args[0], actions)
+      const FALSEY = ['0', 'false']
+      if (cond && !FALSEY.includes(cond.replace(/(^'|")|('|"$)/g, ''))) {
+        return evalExpr(args[1], actions)
+      } else {
+        return evalExpr(args[2], actions)
+      }
+    },
     delay: async () => {
       const num = await evalExpr(args[0], actions)
       num && (await actions.delay(parseInt(num, 10)))

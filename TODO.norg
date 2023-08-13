@@ -17,9 +17,9 @@
   - (x) component system (with variables. `instance(button#my-btn)`)
   - (x) More complex selector support for cssx-children
   - (x) `add-element` & `remove-element`
-  - ( ) conditionals
-  - ( ) figure out how to manage element on change of css variables
+  - (x) conditionals
   - ( ) children of instance must also be instantiated
+  - ( ) figure out how to manage element on change of css variables
   - ( ) access an instance of component
   - ( ) string concatenation
   - ( ) `request` error handling

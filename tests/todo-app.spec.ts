@@ -1,4 +1,4 @@
-import { getByTestId, prettyDOM } from '@testing-library/dom'
+import { getByTestId } from '@testing-library/dom'
 import '@testing-library/jest-dom'
 import { delay, loadHTMLFixture } from './util'
 
@@ -13,7 +13,7 @@ describe('todo-app example', () => {
       $textInput.value = text
       $addBtn.click()
 
-      await delay(100)
+      await delay(10)
       $taskItems = [
         ...document.querySelectorAll<HTMLElement>(
           '[data-instance="task-item"]',
@@ -50,18 +50,31 @@ describe('todo-app example', () => {
       )
     })
 
-    // TODO: Add toggle state after implementing conditionals
     it('should check item when clicked', async () => {
       expect(
         getComputedStyle($taskItems[0]).getPropertyValue('--checked'),
-      ).toBe(`'0'`)
+      ).toBe(`false`)
 
       $taskItems[0].click()
-      await delay(100)
+      await delay(10)
 
       expect(
         getComputedStyle($taskItems[0]).getPropertyValue('--checked'),
-      ).toBe(`"1"`) // TODO: look into the quotes issue
+      ).toBe(`"true"`) // TODO: look into the quotes issue
+
+      $taskItems[0].click()
+      await delay(10)
+
+      expect(
+        getComputedStyle($taskItems[0]).getPropertyValue('--checked'),
+      ).toBe(`"false"`) // TODO: look into the quotes issue
+
+      $taskItems[0].click()
+      await delay(10)
+
+      expect(
+        getComputedStyle($taskItems[0]).getPropertyValue('--checked'),
+      ).toBe(`"true"`) // TODO: look into the quotes issue
     })
   })
 })

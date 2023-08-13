@@ -210,12 +210,11 @@ export const manageElement = async (
 
   const text = getPropertyValue($element, '--cssx-text')
   if (text) {
-    const exprs = parse(text)
     try {
+      const exprs = parse(text)
       $element.textContent =
         (exprs[0] ? await evalExpr(exprs[0], actions) : text) ?? text
     } catch (e) {
-      console.log(e, exprs)
       $element.textContent = text
     }
   }

@@ -5,6 +5,7 @@ import { match, matchString } from './utils/adt'
 export interface Declaration {
   selector: Selector
   properties: Map<string, Expr>
+  isInstance: boolean
 }
 
 export interface DeclarationEval {
@@ -87,7 +88,7 @@ export const toDeclaration = (expr: Expr): Declaration | undefined => {
     selector.selectors.push(SelectorComp.Attr(['data-instance', baseId]))
   }
 
-  return { selector, properties }
+  return { selector, properties, isInstance }
 }
 
 export const expressionsToDeclrs = async (

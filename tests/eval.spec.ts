@@ -26,6 +26,50 @@ describe('eval', () => {
     expect(deps.addClass).toHaveBeenCalledWith('element-id', 'class-name')
   })
 
+  it('should allow conditionals classes', async () => {
+    expect(
+      await evalExpr(
+        Expr.Call({
+          name: 'if',
+          args: [
+            Expr.Identifier('true'),
+            Expr.Identifier('yes'),
+            Expr.Identifier('no'),
+          ],
+        }),
+        deps,
+      ),
+    ).toBe('yes')
+
+    expect(
+      await evalExpr(
+        Expr.Call({
+          name: 'if',
+          args: [
+            Expr.Identifier('false'),
+            Expr.Identifier('yes'),
+            Expr.Identifier('no'),
+          ],
+        }),
+        deps,
+      ),
+    ).toBe('no')
+
+    expect(
+      await evalExpr(
+        Expr.Call({
+          name: 'if',
+          args: [
+            Expr.Identifier('0'),
+            Expr.Identifier('yes'),
+            Expr.Identifier('no'),
+          ],
+        }),
+        deps,
+      ),
+    ).toBe('no')
+  })
+
   it('should remove classes', async () => {
     await evalExpr(
       Expr.Call({

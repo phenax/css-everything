@@ -31,10 +31,10 @@
 
       [data-instance='task-item'] {
         --text: default text;
-        --checked: '0';
+        --checked: false;
 
         --cssx-on-mount: set-attr('data-testid', attr(id));
-        --cssx-on-click: update(--checked, '1');
+        --cssx-on-click: update(--checked, if(var(--checked), false, true));
       }
       [data-instance='task-item']::after {
         content: var(--text);
