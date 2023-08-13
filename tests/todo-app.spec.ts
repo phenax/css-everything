@@ -4,27 +4,50 @@ import { delay, loadHTMLFixture } from './util'
 
 describe('todo-app example', () => {
   describe('Add new task', () => {
-    beforeAll(async () => {
-      await loadHTMLFixture('todo-app')
-    })
+    let $textInput: HTMLInputElement
+    let $addBtn: HTMLButtonElement
 
-    it('should add new unchecked task', async () => {
-      const $textInput = getByTestId<HTMLInputElement>(
-        document.body,
-        'add-task-input',
-      )
-      $textInput.value = 'Buy Milk'
+    let $taskItems: Array<HTMLElement> = []
 
-      const $addBtn = getByTestId<HTMLButtonElement>(
-        document.body,
-        'add-task-btn',
-      )
+    const submit = async (text: string) => {
+      $textInput.value = text
       $addBtn.click()
 
       await delay(100)
+      $taskItems = [
+        ...document.querySelectorAll<HTMLElement>(
+          '[data-instance="task-item"]',
+        ),
+      ]
+    }
 
-      console.log(prettyDOM(document.getElementById('task-list')!))
-      console.log('-------------------')
+    beforeAll(async () => {
+      await loadHTMLFixture('todo-app')
+
+      $textInput = getByTestId<HTMLInputElement>(
+        document.body,
+        'add-task-input',
+      )
+      $addBtn = getByTestId<HTMLButtonElement>(document.body, 'add-task-btn')
+    })
+
+    it('should add new unchecked task', async () => {
+      // Add first item
+      await submit('Buy Milk')
+      expect($taskItems).toHaveLength(1)
+      expect(getComputedStyle($taskItems[0]).getPropertyValue('--text')).toBe(
+        'Buy Milk',
+      )
+
+      // Add the second item
+      await submit('Kill all the non-believers')
+      expect($taskItems).toHaveLength(2)
+      expect(getComputedStyle($taskItems[0]).getPropertyValue('--text')).toBe(
+        'Buy Milk',
+      )
+      expect(getComputedStyle($taskItems[1]).getPropertyValue('--text')).toBe(
+        'Kill all the non-believers',
+      )
     })
   })
 })

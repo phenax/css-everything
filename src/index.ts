@@ -97,6 +97,7 @@ const getEvalActions = (
     },
     getAttribute: async (id, name) => {
       const $el = id ? document.getElementById(id) : $element
+      if (name === 'value') return ($el as any).value
       return $el?.getAttribute(name) ?? undefined
     },
     withEvent: async fn => event && fn(event),
