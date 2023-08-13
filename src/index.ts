@@ -89,7 +89,9 @@ const getEvalActions = (
     },
     setAttribute: async (id, name, value) => {
       const $el = id ? document.getElementById(id) : $element
-      if (value) {
+      if (name === 'value') {
+        ;($el as any).value = value
+      } else if (value) {
         $el?.setAttribute(name, value)
       } else {
         $el?.removeAttribute(name)
