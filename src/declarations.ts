@@ -87,11 +87,10 @@ export const toDeclaration = (expr: Expr): Declaration | undefined => {
   return { selector, properties }
 }
 
-export const extractDeclaration = async (
-  input: string,
+export const expressionsToDeclrs = async (
+  exprs: Array<Expr>,
   actions: EvalActions,
-): Promise<Array<DeclarationEval>> => {
-  const exprs = parseDeclarations(input)
+) => {
   const declrs = await Promise.all(
     exprs
       .map(toDeclaration)
@@ -99,4 +98,12 @@ export const extractDeclaration = async (
       .map(declr => declr && evaluateDeclaration(declr, actions)),
   )
   return declrs.filter(declr => !!declr) as Array<DeclarationEval>
+}
+
+export const extractDeclaration = async (
+  input: string,
+  actions: EvalActions,
+): Promise<Array<DeclarationEval>> => {
+  const exprs = parseDeclarations(input)
+  return expressionsToDeclrs(exprs, actions)
 }

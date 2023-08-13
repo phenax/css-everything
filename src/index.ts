@@ -1,5 +1,10 @@
 import { EvalActions, evalExpr } from './eval'
-import { extractDeclaration, DeclarationEval } from './declarations'
+import {
+  extractDeclaration,
+  DeclarationEval,
+  Declaration,
+  expressionsToDeclrs,
+} from './declarations'
 import { parse } from './parser'
 import { match } from './utils/adt'
 
@@ -99,6 +104,18 @@ const getEvalActions = ($element: Element, event: any): EvalActions => ({
     await fetch(url, { method, body: data })
     // TODO: Handle response?
   },
+  addChildren: async (id, children) => {
+    const $el = document.getElementById(id)
+    const declarations = await expressionsToDeclrs(
+      children,
+      getEvalActions($element, event),
+    )
+    $el && createLayer(declarations, $el)
+  },
+  removeElement: async id => {
+    const $el = id ? document.getElementById(id) : $element
+    $el?.parentNode?.removeChild($el)
+  },
 })
 
 export const handleEvents = async (
@@ -125,6 +142,51 @@ export const handleEvents = async (
   }
 }
 
+const declarationToElement = (
+  declaration: DeclarationEval,
+  $parent?: Element,
+) => {
+  const { tag, id, selectors } = declaration.selector
+  const tagName = tag || 'div'
+
+  let $child = $parent?.querySelector(`:scope > #${id}`)
+  if (!$child) {
+    $child = Object.assign(document.createElement(tagName), { id })
+  }
+
+  // Add selectors
+  for (const selector of selectors) {
+    match(selector, {
+      ClassName: cls =>
+        !$child?.classList.contains(cls) && $child?.classList.add(cls),
+      Attr: ([key, val]) => $child?.setAttribute(key, val),
+    })
+  }
+
+  return { node: $child, isNewElement: !$child }
+}
+
+const createLayer = async (
+  declarations: Array<DeclarationEval>,
+  $parent: Element,
+) => {
+  const LAYER_CLASS = 'cssx-layer'
+  const $childrenRoot =
+    $parent?.querySelector(`:scope > .${LAYER_CLASS}`) ??
+    Object.assign(document.createElement('div'), { className: LAYER_CLASS })
+
+  for (const declaration of declarations) {
+    const { node: $child, isNewElement } = declarationToElement(
+      declaration,
+      $childrenRoot,
+    )
+    $childrenRoot.appendChild($child)
+    await manageElement($child, isNewElement)
+  }
+
+  if (!$childrenRoot.parentNode) $parent.appendChild($childrenRoot)
+}
+
 export const manageElement = async (
   $element: Element,
   isNewElement: boolean = false,
@@ -142,34 +204,7 @@ export const manageElement = async (
     getEvalActions($element, null),
   )
   if (declarations.length > 0) {
-    const LAYER_CLASS = 'cssx-layer'
-    const $childrenRoot =
-      $element.querySelector(`:scope > .${LAYER_CLASS}`) ??
-      Object.assign(document.createElement('div'), { className: LAYER_CLASS })
-    $element.appendChild($childrenRoot)
-
-    for (const declaration of declarations) {
-      const { tag, id, selectors } = declaration.selector
-      const tagName = tag || 'div'
-
-      let $child = $childrenRoot.querySelector(`:scope > #${id}`)
-      const isNewElement = !$child
-      if (!$child) {
-        $child = Object.assign(document.createElement(tagName), { id })
-      }
-
-      // Add selectors
-      for (const selector of selectors) {
-        match(selector, {
-          ClassName: cls =>
-            !$child?.classList.contains(cls) && $child?.classList.add(cls),
-          Attr: ([key, val]) => $child?.setAttribute(key, val),
-        })
-      }
-
-      $childrenRoot.appendChild($child)
-      await manageElement($child, isNewElement)
-    }
+    await createLayer(declarations, $element)
   }
 }
 

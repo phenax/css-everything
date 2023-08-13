@@ -25,6 +25,8 @@ export interface EvalActions {
     url: string
     data: FormData | undefined
   }): Promise<void>
+  addChildren(id: string, children: Expr[]): Promise<void>
+  removeElement(id: string | undefined): Promise<void>
   // calculate ??
 }
 
@@ -125,6 +127,15 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
         await actions.sendRequest({ method, url, data })
       }
     },
+
+    'add-children': async () => {
+      const id = await evalExpr(args[0], actions)
+      if (id) actions.addChildren(id, args.slice(1))
+    },
+    'remove-element': async () =>
+      actions.removeElement(
+        (args[0] && (await evalExpr(args[0], actions))) ?? undefined,
+      ),
 
     _: () => Promise.reject(new Error('not supposed to be here')),
   })
