@@ -1,4 +1,4 @@
-import { Expr, SelectorComp, parse } from '../src/parser'
+import { Expr, SelectorComp, parse, parseDeclarations } from '../src/parser'
 
 describe('parser', () => {
   it('should parse function call', () => {
@@ -155,24 +155,69 @@ describe('parser', () => {
     ])
   })
 
-  it('should parse complex selectors', () => {
-    expect(parse(`button#something.my-class[hello=world]`)).toEqual([
-      Expr.Selector({
-        tag: 'button',
-        id: 'something',
-        selectors: [
-          SelectorComp.ClassName('my-class'),
-          SelectorComp.Attr(['hello', 'world']),
-        ],
-      }),
-    ])
+  describe('parseDeclarations', () => {
+    it('should parse complex selectors', () => {
+      expect(
+        parseDeclarations(`button#something.my-class[hello=world]`),
+      ).toEqual([
+        Expr.Selector({
+          tag: 'button',
+          id: 'something',
+          selectors: [
+            SelectorComp.ClassName('my-class'),
+            SelectorComp.Attr(['hello', 'world']),
+          ],
+        }),
+      ])
 
-    expect(parse(`#something[data-testid="hello world"]`)).toEqual([
-      Expr.Selector({
-        tag: undefined,
-        id: 'something',
-        selectors: [SelectorComp.Attr(['data-testid', 'hello world'])],
-      }),
-    ])
+      expect(
+        parseDeclarations(
+          `#something[data-testid="hello world"].wow input#password[type=password][placeholder="Password: ***"]`,
+        ),
+      ).toEqual([
+        Expr.Selector({
+          tag: undefined,
+          id: 'something',
+          selectors: [
+            SelectorComp.Attr(['data-testid', 'hello world']),
+            SelectorComp.ClassName('wow'),
+          ],
+        }),
+        Expr.Selector({
+          tag: 'input',
+          id: 'password',
+          selectors: [
+            SelectorComp.Attr(['type', 'password']),
+            SelectorComp.Attr(['placeholder', 'Password: ***']),
+          ],
+        }),
+      ])
+    })
+
+    it('should parse declarations', () => {
+      expect(
+        parseDeclarations(
+          `instance(button#something, map(--text: "wow", --color: red))`,
+        ),
+      ).toEqual([
+        Expr.Call({
+          name: 'instance',
+          args: [
+            Expr.Selector({
+              tag: 'button',
+              id: 'something',
+              selectors: [],
+            }),
+            Expr.Call({
+              name: 'map',
+              args: [
+                Expr.Pair({ key: '--text', value: Expr.LiteralString('wow') }),
+                Expr.Pair({ key: '--color', value: Expr.Identifier('red') }),
+              ],
+            }),
+          ],
+        }),
+      ])
+    })
   })
 })

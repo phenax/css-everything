@@ -3,6 +3,12 @@ import * as P from './utils/parser-comb'
 
 export type CSSUnit = '' | 's' | 'ms'
 
+export interface Selector {
+  tag: string | undefined
+  id: string
+  selectors: Array<SelectorComp>
+}
+
 export type SelectorComp = Enum<{
   ClassName: string
   Attr: readonly [string, string]
@@ -17,11 +23,7 @@ export type Expr = Enum<{
   LiteralNumber: { value: number; unit: CSSUnit }
 
   Pair: { key: string; value: Expr }
-  Selector: {
-    tag: string | undefined
-    id: string
-    selectors: Array<SelectorComp>
-  }
+  Selector: Selector
 }>
 
 export const Expr = constructors<Expr>()
@@ -100,16 +102,35 @@ const exprParser: P.Parser<Expr> = P.or([
   stringLiteralExprParser,
   numberExprParser,
   callExprParser,
-  selectorExprParser,
-  identifierExprParser,
   pairExprParser,
   varIdentifierExprParser,
+  selectorExprParser,
+  identifierExprParser,
 ])
 
-const multiExprParser = P.many1(exprParser)
+const declarationParser = P.or([callExprParser, selectorExprParser])
+
+const multiDeclarationParser = P.sepBy(declarationParser, whitespace)
+
+export const parseDeclarations = (input: string) =>
+  match<Array<Expr>, P.ParseResult<Array<Expr>>>(
+    multiDeclarationParser(input),
+    {
+      Ok: ({ value, input }) => {
+        if (input) {
+          console.error(`Declaration stopped parsing at: "${input}"`)
+        }
+        return value
+      },
+      Err: ({ error }) => {
+        console.error(error)
+        return []
+      },
+    },
+  )
 
 export const parse = (input: string): Array<Expr> => {
-  const res = multiExprParser(input.trim())
+  const res = P.many1(exprParser)(input.trim())
   return match(res, {
     Ok: ({ value, input }) => {
       if (input) {
