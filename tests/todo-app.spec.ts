@@ -49,5 +49,19 @@ describe('todo-app example', () => {
         'Kill all the non-believers',
       )
     })
+
+    // TODO: Add toggle state after implementing conditionals
+    it('should check item when clicked', async () => {
+      expect(
+        getComputedStyle($taskItems[0]).getPropertyValue('--checked'),
+      ).toBe(`'0'`)
+
+      $taskItems[0].click()
+      await delay(100)
+
+      expect(
+        getComputedStyle($taskItems[0]).getPropertyValue('--checked'),
+      ).toBe(`"1"`) // TODO: look into the quotes issue
+    })
   })
 })

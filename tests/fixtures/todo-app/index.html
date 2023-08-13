@@ -8,31 +8,35 @@
       }
 
       #task-input-form {
+        /* prettier-ignore */
         --cssx-on-submit:
           prevent-default()
-          add-children(task-list,
-            instance(li#task-item, map(--text: attr(text-input, 'value')))
-          )
-        ;
+          add-children(
+            task-list,
+            instance(div#task-item, map(--text: attr(text-input, 'value')))
+          );
 
+        /* prettier-ignore */
         --cssx-children:
-          input#text-input[data-testid="add-task-input"]
-          button#create-task-btn[type="submit"][data-testid="add-task-btn"]
+          input#text-input[data-testid=add-task-input]
+          button#create-task-btn[type=submit][data-testid=add-task-btn]
         ;
       }
 
-      #text-input {}
+      #text-input {
+      }
       #create-task-btn {
-        --cssx-text: "Submit";
+        --cssx-text: 'Submit';
       }
 
-      [data-instance="task-item"] {
+      [data-instance='task-item'] {
         --text: default text;
-        --checked: 0;
+        --checked: '0';
 
         --cssx-on-mount: set-attr('data-testid', attr(id));
+        --cssx-on-click: update(--checked, '1');
       }
-      [data-instance="task-item"]::after {
+      [data-instance='task-item']::after {
         content: var(--text);
       }
     </style>

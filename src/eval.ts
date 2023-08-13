@@ -8,7 +8,11 @@ export interface EvalActions {
   jsEval(js: string): Promise<any>
   loadCssx(id: string, url: string): Promise<string>
   getVariable(name: string): Promise<string | undefined>
-  updateVariable(id: string, varName: string, value: string): Promise<void>
+  updateVariable(
+    id: string | undefined,
+    varName: string,
+    value: string,
+  ): Promise<void>
   getAttribute(
     id: string | undefined,
     name: string,
@@ -89,11 +93,12 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
       return varName && (actions.getVariable(varName) ?? defaultValue)
     },
     update: async () => {
-      const id = await evalExpr(args[0], actions)
-      const varName = await evalExpr(args[1], actions)
-      const value = await evalExpr(args[2], actions)
-      if (id && varName && value) {
-        actions.updateVariable(id, varName, value)
+      const [id, name, value] =
+        args.length >= 3
+          ? await evalArgs(args, 3, actions)
+          : [undefined, ...(await evalArgs(args, 2, actions))]
+      if (name) {
+        actions.updateVariable(id ?? undefined, name, value ?? '')
       }
     },
 
@@ -103,7 +108,7 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
           ? await evalArgs(args, 3, actions)
           : [undefined, ...(await evalArgs(args, 2, actions))]
       if (name) {
-        actions.setAttribute(id as string | undefined, name, value ?? '')
+        actions.setAttribute(id ?? undefined, name, value ?? '')
       }
     },
     attr: async () => {

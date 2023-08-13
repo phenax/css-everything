@@ -2,7 +2,6 @@ import { EvalActions, evalExpr } from './eval'
 import {
   extractDeclaration,
   DeclarationEval,
-  Declaration,
   expressionsToDeclrs,
 } from './declarations'
 import { parse } from './parser'
@@ -61,30 +60,32 @@ const getEvalActions = (
     removeClass: async (id, cls) =>
       document.getElementById(id)?.classList.remove(cls),
     delay: delay => new Promise(res => setTimeout(res, delay)),
-    jsEval: async js => (0, eval)(js),
+    jsEval: async js => !pure && (0, eval)(js),
     loadCssx: async (id, url) =>
-      new Promise((resolve, reject) => {
-        const $link = Object.assign(document.createElement('link'), {
-          href: url,
-          rel: 'stylesheet',
-        })
-        $link.onload = () => {
-          const $el = document.getElementById(id)
-          if ($el) {
-            manageElement($el)
-            resolve(id)
-          } else {
-            console.error(`[CSSX] Unable to find root for ${id}`)
-            reject(`[CSSX] Unable to find root for ${id}`)
-          }
-        }
-        document.body.appendChild($link)
-      }),
+      pure
+        ? ''
+        : new Promise((resolve, reject) => {
+            const $link = Object.assign(document.createElement('link'), {
+              href: url,
+              rel: 'stylesheet',
+            })
+            $link.onload = () => {
+              const $el = document.getElementById(id)
+              if ($el) {
+                manageElement($el)
+                resolve(id)
+              } else {
+                console.error(`[CSSX] Unable to find root for ${id}`)
+                reject(`[CSSX] Unable to find root for ${id}`)
+              }
+            }
+            document.body.appendChild($link)
+          }),
     getVariable: async varName => getPropertyValue($element, varName),
     updateVariable: async (targetId, varName, value) => {
-      const $el = document.getElementById(targetId)
+      const $el = targetId ? document.getElementById(targetId) : $element
       if ($el) {
-        $el.style.setProperty(varName, JSON.stringify(value))
+        ;($el as any).style.setProperty(varName, JSON.stringify(value))
       }
     },
     setAttribute: async (id, name, value) => {
@@ -108,6 +109,7 @@ const getEvalActions = (
         ? new FormData($element as HTMLFormElement)
         : undefined,
     sendRequest: async ({ url, method, data }) => {
+      if (pure) return
       await fetch(url, { method, body: data })
       // TODO: Handle response?
     },
