@@ -78,15 +78,20 @@
 
 [data-instance=task-item] {
   --text: "default text";
-  --checked: "false";
+  --done: "false";
 
   padding: 1rem;
   cursor: pointer;
 
-  --cssx-on-click: update(--checked, if(get-var(--checked), "false", "true"));
+  --cssx-on-click: update(--done, if(get-var(--done), "false", "true"));
+  --cssx-on-update:
+    update(checkbox, --checked, if(get-var(--done), true, false))
+  ;
+
+  --cssx-children: div#checkbox;
 }
 [data-instance=task-item]::after {
-  content: "[" var(--checked) "] " var(--text);
+  content: "[" var(--done) "] " var(--text);
 }
 
 [data-instance=task-item]:not(:first-child) {
@@ -95,3 +100,15 @@
   border-top: 1px solid var(--color-gray);
 }
 
+#checkbox {
+  --checked: false;
+
+  width: 18px;
+  height: 18px;
+  border: 2px solid gray;
+  background-color: transparent;
+
+  --cssx-on-update:
+    update(background-color, if(get-var(--checked), get-var(--color-accent), transparent))
+  ;
+}

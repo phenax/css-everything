@@ -91,11 +91,16 @@ const getEvalActions = (
     getVariable: async varName => getPropertyValue($element, varName),
     updateVariable: async (targetId, varName, value) => {
       const $el = targetId ? document.getElementById(targetId) : $element
+      const isCustomProp = varName.startsWith('--')
       if ($el) {
         const prevValue = getPropertyValue($el, varName)
-        ;($el as any).style.setProperty(varName, JSON.stringify(value))
+        if (isCustomProp) {
+          ;($el as any).style.setProperty(varName, JSON.stringify(value))
+        } else {
+          ;($el as any).style[varName] = value
+        }
 
-        if (JSON.stringify(value) !== prevValue) {
+        if (JSON.stringify(value) !== prevValue && isCustomProp) {
           const detail = { name: varName, value, prevValue }
           $el.dispatchEvent(new CustomEvent(CSSX_ON_UPDATE_EVENT, { detail }))
         }
