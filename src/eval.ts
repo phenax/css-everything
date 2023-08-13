@@ -53,8 +53,14 @@ export const evalExpr = async (
     _: async _ => undefined,
   })
 
-const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
-  matchString<Promise<EvalValue>>(name, {
+const getFunctions = (name: string, args: Expr[], actions: EvalActions) => {
+  const getVariable = async () => {
+    const varName = await evalExpr(args[0], actions)
+    const defaultValue = args[1] && (await evalExpr(args[1], actions))
+    return varName && (actions.getVariable(varName) ?? defaultValue)
+  }
+
+  return matchString<Promise<EvalValue>>(name, {
     'add-class': async () => {
       const id = await evalExpr(args[0], actions)
       const classes = await evalExpr(args[1], actions)
@@ -96,11 +102,9 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
       }
     },
 
-    var: async () => {
-      const varName = await evalExpr(args[0], actions)
-      const defaultValue = args[1] && (await evalExpr(args[1], actions))
-      return varName && (actions.getVariable(varName) ?? defaultValue)
-    },
+    var: getVariable,
+    'get-var': getVariable,
+
     update: async () => {
       const [id, name, value] =
         args.length >= 3
@@ -153,6 +157,7 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
 
     _: () => Promise.reject(new Error('not supposed to be here')),
   })
+}
 
 export const evalArgs = (
   args: Array<Expr>,

@@ -5,14 +5,18 @@ import {
   expressionsToDeclrs,
 } from './declarations'
 import { parse } from './parser'
-import { match } from './utils/adt'
+import { match, matchString } from './utils/adt'
+
+const CSSX_ON_UPDATE_EVENT = 'cssx--update'
+const CSSX_ON_MOUNT_EVENT = 'cssx--mount'
 
 const UNSET_PROPERTY_VALUE = '<unset>'
 const EVENT_HANDLERS = {
   click: '--cssx-on-click',
   load: '--cssx-on-load',
-  mount: '--cssx-on-mount',
   submit: '--cssx-on-submit',
+  [CSSX_ON_MOUNT_EVENT]: '--cssx-on-mount',
+  [CSSX_ON_UPDATE_EVENT]: '--cssx-on-update',
 }
 
 const PROPERTIES = [
@@ -32,6 +36,9 @@ export const injectStyles = () => {
 
   $style.textContent = `.cssx-layer {
     ${properties.map(p => `${p}: ${UNSET_PROPERTY_VALUE};`).join(' ')}
+    display: inherit;
+    width: inherit;
+    height: inherit;
   }`
 
   document.body.appendChild($style)
@@ -85,7 +92,13 @@ const getEvalActions = (
     updateVariable: async (targetId, varName, value) => {
       const $el = targetId ? document.getElementById(targetId) : $element
       if ($el) {
+        const prevValue = getPropertyValue($el, varName)
         ;($el as any).style.setProperty(varName, JSON.stringify(value))
+
+        if (JSON.stringify(value) !== prevValue) {
+          const detail = { name: varName, value, prevValue }
+          $el.dispatchEvent(new CustomEvent(CSSX_ON_UPDATE_EVENT, { detail }))
+        }
       }
     },
     setAttribute: async (id, name, value) => {
@@ -141,11 +154,20 @@ export const handleEvents = async (
         }
       }
 
-      if (eventType === 'mount') {
-        if (isNewElement) setTimeout(eventHandler)
-      } else {
-        ;($element as any)[`on${eventType}`] = eventHandler
-      }
+      matchString(eventType, {
+        [CSSX_ON_UPDATE_EVENT]: () => {
+          if (!$element.hasAttribute('data-hooked')) {
+            $element.addEventListener(eventType, eventHandler)
+            $element.setAttribute('data-hooked', 'true')
+          }
+        },
+        [CSSX_ON_MOUNT_EVENT]: () => {
+          if (isNewElement) setTimeout(eventHandler)
+        },
+        _: () => {
+          ;($element as any)[`on${eventType}`] = eventHandler
+        },
+      })
     }
   }
 }
@@ -173,7 +195,7 @@ const declarationToElement = (
   }
 
   for (const [key, value] of declaration.properties) {
-    ;($child as HTMLElement)?.style.setProperty(key, value)
+    ;($child as HTMLElement)?.style.setProperty(key, JSON.stringify(value))
   }
 
   return { node: $child, isNewElement }
@@ -188,6 +210,8 @@ const createLayer = async (
     $parent?.querySelector(`:scope > .${LAYER_CLASS}`) ??
     Object.assign(document.createElement('div'), { className: LAYER_CLASS })
 
+  if (!$childrenRoot.parentNode) $parent.appendChild($childrenRoot)
+
   for (const declaration of declarations) {
     const { node: $child, isNewElement } = declarationToElement(
       declaration,
@@ -196,8 +220,6 @@ const createLayer = async (
     $childrenRoot.appendChild($child)
     await manageElement($child, isNewElement)
   }
-
-  if (!$childrenRoot.parentNode) $parent.appendChild($childrenRoot)
 }
 
 export const manageElement = async (

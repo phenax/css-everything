@@ -1,33 +1,97 @@
-body {
-  --cssx-children: todo-container;
+:root {
+  --color-gray: #cccccc;
+  --color-accent: #5180e9;
+
+  font-size: 16px;
+  color: #555;
+
+  --cssx-children: main#container;
 }
 
-#todo-container {
-  --cssx-children: todo-input todo-list;
-  --todo-list: list();
+#container {
+  max-width: 600px;
+  margin: 2rem auto;
+  border: 1px solid var(--color-gray);
+  border-radius: 5px;
+  overflow: hidden;
+
+  --cssx-children: form#task-input-form #task-list;
 }
 
-#todo-input {
-  --cssx-children: input-field submit-btn;
+#task-input-form {
+  display: flex;
+  width: 100%;
+
+  /* prettier-ignore */
+  --cssx-on-submit:
+    prevent-default()
+    add-children(
+      task-list,
+      instance(div#task-item, map(--text: attr(text-input, 'value')))
+    )
+    set-attr(text-input, value, '')
+  ;
+
+  /* prettier-ignore */
+  --cssx-on-mount:
+    add-children(
+      task-list,
+      instance(div#task-item, map(--text: "Buy lemons"))
+    )
+    add-children(
+      task-list,
+      instance(div#task-item, map(--text: "Make lemonaide"))
+    )
+    add-children(
+      task-list,
+      instance(div#task-item, map(--text: "Kill all the non-believers"))
+    )
+  ;
+
+  /* prettier-ignore */
+  --cssx-children:
+    input#text-input[placeholder="Eg: Buy Milk"]
+    button#create-task-btn[type=submit]
+  ;
 }
 
-#submit-btn {
-  --cssx-on-click: update(
-    todo-container,
-    --todo-list,
-    list-append(var(--todo-list), tuple(get-attr(input-field, value), false))
-  );
-}
-#submit-btn::after {
-  content: 'Submit';
+#text-input {
+  display: block;
+  width: 100%;
+  padding: 0.7rem 1rem;
+  font-size: 1rem;
+  border: none;
+  border-bottom: 1px solid var(--color-gray);
 }
 
-#todo-list {
-  --cssx-iter-children: iter(var(--todo-list), --todo-item, todo-item);
+#create-task-btn {
+  padding: 0 2rem;
+  background-color: var(--color-accent);
+  color: white;
+  font-weight: bold;
+  border: none;
+  font-size: 1.2rem;
+
+  --cssx-text: '+';
 }
 
-#todo-item {
+
+[data-instance=task-item] {
+  --text: "default text";
+  --checked: "false";
+
+  padding: 1rem;
+  cursor: pointer;
+
+  --cssx-on-click: update(--checked, if(get-var(--checked), "false", "true"));
 }
-#todo-item::after {
-  content: var(--todo-item);
+[data-instance=task-item]::after {
+  content: "[" var(--checked) "] " var(--text);
 }
+
+[data-instance=task-item]:not(:first-child) {
+  content: "";
+  display: block;
+  border-top: 1px solid var(--color-gray);
+}
+

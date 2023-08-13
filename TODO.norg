@@ -24,6 +24,7 @@
   - ( ) string concatenation
   - ( ) `request` error handling
   - ( ) keyboard events
+  - ( ) Code cleanup
   - ( ) Evaluate `calc`
   - ( ) Additional events
   - ( ) Improve error messages
