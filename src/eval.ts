@@ -85,7 +85,7 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
 
     var: async () => {
       const varName = await evalExpr(args[0], actions)
-      const defaultValue = await evalExpr(args[1], actions)
+      const defaultValue = args[1] && (await evalExpr(args[1], actions))
       return varName && (actions.getVariable(varName) ?? defaultValue)
     },
     update: async () => {

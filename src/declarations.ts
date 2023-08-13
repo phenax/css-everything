@@ -50,12 +50,15 @@ export const toDeclaration = (expr: Expr): Declaration | undefined => {
         instance: () => {
           isInstance = true
           const [sel, map] = args
+
+          // Selector
           match(sel, {
             Selector: sel => {
               selector = sel
             },
             _: _ => {},
           })
+
           match(map, {
             Call: ({ name, args }) => {
               if (name !== 'map') return
@@ -90,7 +93,7 @@ export const toDeclaration = (expr: Expr): Declaration | undefined => {
 export const expressionsToDeclrs = async (
   exprs: Array<Expr>,
   actions: EvalActions,
-) => {
+): Promise<Array<DeclarationEval>> => {
   const declrs = await Promise.all(
     exprs
       .map(toDeclaration)

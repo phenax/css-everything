@@ -15,9 +15,9 @@
   - (x) `selector` parsing
   - (x) `map` data structure
   - (x) component system (with variables. `instance(button#my-btn)`)
-  - ( ) instance access
-  - ( ) More complex selector support for cssx-children
-  - ( ) `add-element` & `remove-element`
+  - (x) More complex selector support for cssx-children
+  - (x) `add-element` & `remove-element`
+  - ( ) access an instance of component
   - ( ) string concatenation
   - ( ) `request` error handling
   - ( ) keyboard events

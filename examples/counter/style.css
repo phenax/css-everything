@@ -1,6 +1,5 @@
 body {
   --cssx-children: container todo-container;
-  --cssx-on-load: js(console.log('what have we done?!'));
 }
 
 #container {

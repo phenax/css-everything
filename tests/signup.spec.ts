@@ -3,6 +3,7 @@ import {
   waitFor,
   getByText,
   getByTestId,
+  prettyDOM,
 } from '@testing-library/dom'
 import '@testing-library/jest-dom'
 import { delay, loadHTMLFixture } from './util'
@@ -33,9 +34,9 @@ describe('signup example', () => {
     beforeEach(async () => {
       const $showFormBtn = document.getElementById('show-form-btn')!
       fireEvent.click($showFormBtn)
-      await waitFor(() => expect($showFormBtn).not.toBeVisible())
-      const $form = document.getElementById('signup-form')!
-      expect($form).toBeVisible()
+      await waitFor(() =>
+        expect(document.getElementById('signup-form')).toBeVisible(),
+      )
       await delay(100) // Wait for mounting
     })
 
@@ -48,7 +49,7 @@ describe('signup example', () => {
       const $password = getByTestId<HTMLInputElement>(document.body, 'password')
       $password.value = 'password'
 
-      await delay(2000)
+      await delay(100)
 
       // Submit form
       const $submitBtn = getByText(document.body, 'Submit')

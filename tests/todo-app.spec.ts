@@ -23,11 +23,8 @@ describe('todo-app example', () => {
 
       await delay(100)
 
-      console.log(prettyDOM(document.body))
-      console.log()
-      console.log()
-      console.log()
-      console.log()
+      console.log(prettyDOM(document.getElementById('task-list')!))
+      console.log('-------------------')
     })
   })
 })

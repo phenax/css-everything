@@ -51,72 +51,75 @@ export const getDeclarations = (
   return extractDeclaration(value, actions)
 }
 
-const getEvalActions = ($element: Element, event: any): EvalActions => ({
-  addClass: async (id, cls) => document.getElementById(id)?.classList.add(cls),
-  removeClass: async (id, cls) =>
-    document.getElementById(id)?.classList.remove(cls),
-  delay: delay => new Promise(res => setTimeout(res, delay)),
-  jsEval: async js => (0, eval)(js),
-  loadCssx: async (id, url) =>
-    new Promise((resolve, reject) => {
-      const $link = Object.assign(document.createElement('link'), {
-        href: url,
-        rel: 'stylesheet',
-      })
-      $link.onload = () => {
-        const $el = document.getElementById(id)
-        // NOTE: Maybe create and append to body if no root?
-        if ($el) {
-          manageElement($el)
-          resolve(id)
-        } else {
-          console.error(`[CSSX] Unable to find root for ${id}`)
-          reject(`[CSSX] Unable to find root for ${id}`)
+const getEvalActions = (
+  $element: Element,
+  { event = null, pure = false }: { event?: any; pure?: boolean },
+): EvalActions => {
+  const actions: EvalActions = {
+    addClass: async (id, cls) =>
+      document.getElementById(id)?.classList.add(cls),
+    removeClass: async (id, cls) =>
+      document.getElementById(id)?.classList.remove(cls),
+    delay: delay => new Promise(res => setTimeout(res, delay)),
+    jsEval: async js => (0, eval)(js),
+    loadCssx: async (id, url) =>
+      new Promise((resolve, reject) => {
+        const $link = Object.assign(document.createElement('link'), {
+          href: url,
+          rel: 'stylesheet',
+        })
+        $link.onload = () => {
+          const $el = document.getElementById(id)
+          if ($el) {
+            manageElement($el)
+            resolve(id)
+          } else {
+            console.error(`[CSSX] Unable to find root for ${id}`)
+            reject(`[CSSX] Unable to find root for ${id}`)
+          }
         }
+        document.body.appendChild($link)
+      }),
+    getVariable: async varName => getPropertyValue($element, varName),
+    updateVariable: async (targetId, varName, value) => {
+      const $el = document.getElementById(targetId)
+      if ($el) {
+        $el.style.setProperty(varName, JSON.stringify(value))
       }
-      document.body.appendChild($link)
-    }),
-  getVariable: async varName => getPropertyValue($element, varName),
-  updateVariable: async (targetId, varName, value) => {
-    const $el = document.getElementById(targetId)
-    if ($el) {
-      $el.style.setProperty(varName, JSON.stringify(value))
-    }
-  },
-  setAttribute: async (id, name, value) => {
-    const $el = id ? document.getElementById(id) : $element
-    if (value) {
-      $el?.setAttribute(name, value)
-    } else {
-      $el?.removeAttribute(name)
-    }
-  },
-  getAttribute: async (id, name) => {
-    const $el = id ? document.getElementById(id) : $element
-    return $el?.getAttribute(name) ?? undefined
-  },
-  withEvent: async fn => fn(event),
-  getFormData: async () =>
-    $element.nodeName === 'FORM'
-      ? new FormData($element as HTMLFormElement)
-      : undefined,
-  sendRequest: async ({ url, method, data }) => {
-    await fetch(url, { method, body: data })
-    // TODO: Handle response?
-  },
-  addChildren: async (id, children) => {
-    const $el = document.getElementById(id)
-    const declarations = await expressionsToDeclrs(
-      children,
-      getEvalActions($element, event),
-    )
-    $el && createLayer(declarations, $el)
-  },
-  removeElement: async id => {
-    const $el = id ? document.getElementById(id) : $element
-    $el?.parentNode?.removeChild($el)
-  },
-})
+    },
+    setAttribute: async (id, name, value) => {
+      const $el = id ? document.getElementById(id) : $element
+      if (value) {
+        $el?.setAttribute(name, value)
+      } else {
+        $el?.removeAttribute(name)
+      }
+    },
+    getAttribute: async (id, name) => {
+      const $el = id ? document.getElementById(id) : $element
+      return $el?.getAttribute(name) ?? undefined
+    },
+    withEvent: async fn => event && fn(event),
+    getFormData: async () =>
+      $element.nodeName === 'FORM'
+        ? new FormData($element as HTMLFormElement)
+        : undefined,
+    sendRequest: async ({ url, method, data }) => {
+      await fetch(url, { method, body: data })
+      // TODO: Handle response?
+    },
+    addChildren: async (id, children) => {
+      const $el = document.getElementById(id)
+      const declarations = await expressionsToDeclrs(children, actions)
+      $el && createLayer(declarations, $el)
+    },
+    removeElement: async id => {
+      const $el = id ? document.getElementById(id) : $element
+      $el?.parentNode?.removeChild($el)
+    },
+  }
+  return actions
+}
 
 export const handleEvents = async (
   $element: Element,
@@ -129,7 +132,7 @@ export const handleEvents = async (
       const eventHandler = async (event: any) => {
         const exprs = parse(handlerExpr)
         for (const expr of exprs) {
-          await evalExpr(expr, getEvalActions($element, event))
+          await evalExpr(expr, getEvalActions($element, { event }))
         }
       }
 
@@ -150,6 +153,7 @@ const declarationToElement = (
   const tagName = tag || 'div'
 
   let $child = $parent?.querySelector(`:scope > #${id}`)
+  const isNewElement = !$child
   if (!$child) {
     $child = Object.assign(document.createElement(tagName), { id })
   }
@@ -163,7 +167,11 @@ const declarationToElement = (
     })
   }
 
-  return { node: $child, isNewElement: !$child }
+  for (const [key, value] of declaration.properties) {
+    ;($child as HTMLElement)?.style.setProperty(key, value)
+  }
+
+  return { node: $child, isNewElement }
 }
 
 const createLayer = async (
@@ -193,16 +201,24 @@ export const manageElement = async (
 ) => {
   await handleEvents($element, isNewElement)
 
+  const actions = getEvalActions($element, { pure: true })
+
   const text = getPropertyValue($element, '--cssx-text')
-  if (text) $element.textContent = text
+  if (text) {
+    const exprs = parse(text)
+    try {
+      $element.textContent =
+        (exprs[0] ? await evalExpr(exprs[0], actions) : text) ?? text
+    } catch (e) {
+      console.log(e, exprs)
+      $element.textContent = text
+    }
+  }
 
   const html = getPropertyValue($element, '--cssx-disgustingly-set-innerhtml')
   if (html) $element.innerHTML = html.replace(/(^'|")|('|"$)/g, '')
 
-  const declarations = await getDeclarations(
-    $element,
-    getEvalActions($element, null),
-  )
+  const declarations = await getDeclarations($element, actions)
   if (declarations.length > 0) {
     await createLayer(declarations, $element)
   }

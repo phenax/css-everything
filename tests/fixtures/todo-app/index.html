@@ -10,7 +10,11 @@
       #task-input-form {
         --cssx-on-submit:
           prevent-default()
-          js-eval('console.log("todo: implement add new task")')
+          add-children(task-list,
+            instance(li#task-item, map(
+              --text: "Hello world",
+            ))
+          )
         ;
 
         --cssx-children:
@@ -21,24 +25,13 @@
 
       #text-input {}
       #create-task-btn {
-        --cssx-text: Submit;
+        --cssx-text: "Submit";
       }
 
-      #task-list {
-        --cssx-children:
-          instance(li#task-item, map(
-            --text: "hello world",
-            --checked: 0
-          ))
-          instance(li#task-item, map(
-            --text: "coolio stuff",
-            --checked: 0
-          ))
-        ;
-      }
+      #task-list { }
 
       [data-instance="task-item"] {
-        --text: "default text";
+        --text: default text;
         --checked: 0;
 
         --cssx-text: var(--text);
