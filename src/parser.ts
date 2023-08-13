@@ -3,12 +3,25 @@ import * as P from './utils/parser-comb'
 
 export type CSSUnit = '' | 's' | 'ms'
 
+export type SelectorComp = Enum<{
+  ClassName: string
+  Attr: readonly [string, string]
+}>
+export const SelectorComp = constructors<SelectorComp>()
+
 export type Expr = Enum<{
   Call: { name: string; args: Expr[] }
   Identifier: string
   VarIdentifier: string
   LiteralString: string
   LiteralNumber: { value: number; unit: CSSUnit }
+
+  Pair: { key: string; value: Expr }
+  Selector: {
+    tag: string | undefined
+    id: string
+    selectors: Array<SelectorComp>
+  }
 }>
 
 export const Expr = constructors<Expr>()
@@ -36,28 +49,61 @@ const callExprParser = (input: string) =>
     ([name, args]) => Expr.Call({ name, args }),
   )(input)
 
-const stringLiteralParser: P.Parser<Expr> = P.map(
-  P.or([
-    P.between(singleQuote, P.regex(/^[^']*/), singleQuote),
-    P.between(doubleQuote, P.regex(/^[^"]*/), doubleQuote),
-  ]),
+const stringLiteralParser = P.or([
+  P.between(singleQuote, P.regex(/^[^']*/), singleQuote),
+  P.between(doubleQuote, P.regex(/^[^"]*/), doubleQuote),
+])
+const stringLiteralExprParser: P.Parser<Expr> = P.map(
+  stringLiteralParser,
   Expr.LiteralString,
 )
 
 const numberParser = P.regex(/^[-+]?((\d*\.\d+)|\d+)/)
-
 const numberExprParser: P.Parser<Expr> = P.map(
   P.zip2(numberParser, P.optional(P.regex(/^(s|ms)/i))),
   ([value, unit]) =>
     Expr.LiteralNumber({ value: Number(value), unit: (unit ?? '') as CSSUnit }),
 )
 
+const tagP = identifierParser
+const idP = P.prefixed(P.string('#'), identifierParser)
+const classP = P.map(
+  P.prefixed(P.string('.'), identifierParser),
+  SelectorComp.ClassName,
+)
+const valueP = P.or([identifierParser, stringLiteralParser, numberParser])
+const attrP = P.map(
+  P.between(
+    P.string('['),
+    P.zip2(P.suffixed(identifierParser, P.string('=')), valueP),
+    P.string(']'),
+  ),
+  SelectorComp.Attr,
+)
+
+const selectorExprParser: P.Parser<Expr> = (input: string) =>
+  P.map(
+    P.zip2(P.zip2(P.optional(tagP), idP), P.many0(P.or([classP, attrP]))),
+    ([[tag, id], selectors]) => Expr.Selector({ tag, id, selectors }),
+  )(input)
+
+const pairExprParser: P.Parser<Expr> = (input: string) =>
+  P.map(
+    P.zip2(
+      P.suffixed(varIdentifierParser, consumeWhitespace(P.string(':'))),
+      exprParser,
+    ),
+    ([key, value]) => Expr.Pair({ key, value }),
+  )(input)
+
 const exprParser: P.Parser<Expr> = P.or([
-  stringLiteralParser,
-  varIdentifierExprParser,
+  stringLiteralExprParser,
   numberExprParser,
   callExprParser,
+  selectorExprParser,
   identifierExprParser,
+  pairExprParser,
+  varIdentifierExprParser,
 ])
 
 const multiExprParser = P.many1(exprParser)

@@ -113,6 +113,7 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) =>
         return actions.getAttribute(id as string | undefined, name)
       }
     },
+
     'prevent-default': async () => actions.withEvent(e => e.preventDefault()),
 
     request: async () => {
