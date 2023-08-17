@@ -19,11 +19,13 @@ const EVENT_HANDLERS = {
   [CSSX_ON_UPDATE_EVENT]: '--cssx-on-update',
 }
 
-const PROPERTIES = [
-  '--cssx-children',
-  '--cssx-text',
-  '--cssx-disgustingly-set-innerhtml',
-]
+const LAYER_CLASS_NAME = 'cssx-layer'
+
+const PROPERTIES = {
+  CHILDREN: '--cssx-children',
+  TEXT: '--cssx-text',
+  HTML: '--cssx-disgustingly-set-innerhtml',
+}
 
 export const injectStyles = () => {
   const STYLE_TAG_CLASS = 'cssx-style-root'
@@ -32,33 +34,38 @@ export const injectStyles = () => {
   const $style = document.createElement('style')
   $style.className = STYLE_TAG_CLASS
 
-  const properties = [...PROPERTIES, ...Object.values(EVENT_HANDLERS)]
+  const properties = [
+    ...Object.values(PROPERTIES),
+    ...Object.values(EVENT_HANDLERS),
+  ]
 
   $style.textContent = `.cssx-layer {
     ${properties.map(p => `${p}: ${UNSET_PROPERTY_VALUE};`).join(' ')}
     display: inherit;
     width: inherit;
     height: inherit;
+    align-items: inherit;
+    justify-content: inherit;
   }`
 
   document.body.appendChild($style)
 }
 
-export const getPropertyValue = ($element: Element, prop: string) => {
+export const getPropertyValue = ($element: HTMLElement, prop: string) => {
   const value = `${getComputedStyle($element).getPropertyValue(prop)}`.trim()
   return !value || value === UNSET_PROPERTY_VALUE ? '' : value
 }
 
 export const getDeclarations = (
-  $element: Element,
+  $element: HTMLElement,
   actions: EvalActions,
 ): Promise<Array<DeclarationEval>> => {
-  const value = getPropertyValue($element, '--cssx-children')
+  const value = getPropertyValue($element, PROPERTIES.CHILDREN)
   return extractDeclaration(value, actions)
 }
 
 const getEvalActions = (
-  $element: Element,
+  $element: HTMLElement,
   { event = null, pure = false }: { event?: any; pure?: boolean },
 ): EvalActions => {
   const actions: EvalActions = {
@@ -145,7 +152,7 @@ const getEvalActions = (
 }
 
 export const handleEvents = async (
-  $element: Element,
+  $element: HTMLElement,
   isNewElement: boolean = false,
 ) => {
   for (const [eventType, property] of Object.entries(EVENT_HANDLERS)) {
@@ -179,15 +186,16 @@ export const handleEvents = async (
 
 const declarationToElement = (
   declaration: DeclarationEval,
-  $parent?: Element,
-) => {
+  $parent?: HTMLElement,
+): { node: HTMLElement; isNewElement: boolean } => {
   const { tag, id, selectors } = declaration.selector
   const tagName = tag || 'div'
 
-  let $child = $parent?.querySelector(`:scope > #${id}`)
+  let $child = $parent?.querySelector<HTMLElement>(`:scope > #${id}`)
   const isNewElement = !$child
   if (!$child) {
     $child = Object.assign(document.createElement(tagName), { id })
+    $child.dataset.element = id
   }
 
   // Add selectors
@@ -200,7 +208,7 @@ const declarationToElement = (
   }
 
   for (const [key, value] of declaration.properties) {
-    ;($child as HTMLElement)?.style.setProperty(key, JSON.stringify(value))
+    $child?.style.setProperty(key, JSON.stringify(value))
   }
 
   return { node: $child, isNewElement }
@@ -208,12 +216,13 @@ const declarationToElement = (
 
 const createLayer = async (
   declarations: Array<DeclarationEval>,
-  $parent: Element,
+  $parent: HTMLElement,
 ) => {
-  const LAYER_CLASS = 'cssx-layer'
   const $childrenRoot =
-    $parent?.querySelector(`:scope > .${LAYER_CLASS}`) ??
-    Object.assign(document.createElement('div'), { className: LAYER_CLASS })
+    $parent?.querySelector<HTMLElement>(`:scope > .${LAYER_CLASS_NAME}`) ??
+    Object.assign(document.createElement('div'), {
+      className: LAYER_CLASS_NAME,
+    })
 
   if (!$childrenRoot.parentNode) $parent.appendChild($childrenRoot)
 
@@ -228,14 +237,14 @@ const createLayer = async (
 }
 
 export const manageElement = async (
-  $element: Element,
+  $element: HTMLElement,
   isNewElement: boolean = false,
 ) => {
   await handleEvents($element, isNewElement)
 
   const actions = getEvalActions($element, { pure: true })
 
-  const text = getPropertyValue($element, '--cssx-text')
+  const text = getPropertyValue($element, PROPERTIES.TEXT)
   if (text) {
     try {
       const exprs = parse(text)
@@ -246,7 +255,7 @@ export const manageElement = async (
     }
   }
 
-  const html = getPropertyValue($element, '--cssx-disgustingly-set-innerhtml')
+  const html = getPropertyValue($element, PROPERTIES.HTML)
   if (html) $element.innerHTML = html.replace(/(^'|")|('|"$)/g, '')
 
   const declarations = await getDeclarations($element, actions)

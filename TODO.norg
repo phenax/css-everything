@@ -1,4 +1,4 @@
-* Tasks
+* Now
   - (x) Hydrate existing elements instead of re-creating
   - (x) `load-cssx` functions
   - (x) `get-variable`
@@ -18,15 +18,27 @@
   - (x) More complex selector support for cssx-children
   - (x) `add-element` & `remove-element`
   - (x) conditionals
+  - (x) on update
   - ( ) children of instance must also be instantiated
-  - ( ) figure out how to manage element on change of css variables
-  - ( ) access an instance of component
+  - ( ) access child from an instance (update checkbox)
+  - ( ) access instance from child (delete task)
+  - ( ) filter for on update on specific properties
+  - ( ) eval
+  - ( ) update property on child on update of parent
+  - ( ) functions/lazy properties?
   - ( ) string concatenation
   - ( ) `request` error handling
   - ( ) keyboard events
   - ( ) Code cleanup
+
+* Later
+  - ( ) `add-class` & `remove-class` should use self if id is not specified?
   - ( ) Evaluate `calc`
+  - ( ) access an instance of component
   - ( ) Additional events
   - ( ) Improve error messages
-  - ( ) `add-class` & `remove-class` should use self if id is not specified?
+
+* Maybe
   - ( ) `list` & `tuple` data structures?
+  - ( ) server-side css? Why the fuck not!?
+
