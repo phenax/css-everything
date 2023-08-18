@@ -1,4 +1,4 @@
-# cssx
+# css-everything
 A ui library where you only write CSS. No HTML, no JS, no build system, only CSS (kinda).
 
 > Disclaimer: Don't use this
@@ -19,11 +19,11 @@ You can start by adding the script tag for the renderer inside the body
 </html>
 ```
 
-NOTE: The HTML needs to have a body element since that is the root of your application by default.
+**NOTE:** The HTML needs to have a body element since that is the root of your application by default.
 
-NOTE_new: Styles need to be loaded before the renderer is triggered.
+**NOTE_new:** Styles need to be loaded before the renderer is triggered.
 
-NOTE_new_final: You can load more cssx by using the `load-cssx()` function
+**NOTE_new_final:** You can load more cssx by using the `load-cssx()` function
 
 #### A simple style.css
 This generates 2 elements (`main` and `button`)
@@ -54,6 +54,8 @@ This generates 2 elements (`main` and `button`)
 Wow. You couldn't come up with a more boring example if you tried.
 
 [Here's a todo example then](https://codepen.io/phenax/pen/QWzWGaV?editors=1100)
+
+[Here's a simple time example](https://codepen.io/phenax/pen/KKbKNeb?editors=1100)
 
 [More in the examples directory](https://github.com/phenax/css-everything/tree/main/examples)
 
