@@ -6,9 +6,13 @@ A ui library where you only write CSS. No HTML, no JS, no build system, only CSS
 
 ## Usage
 
-#### Install
+### Docs
+WIP. Coming soon maybe?
+
+### Simple example
 You can start by adding the script tag for the renderer inside the body
 ```html
+<!-- index.html -->
 <html lang="en">
   <head>
     <link href="./style.css" rel="stylesheet" />
@@ -21,15 +25,15 @@ You can start by adding the script tag for the renderer inside the body
 
 **NOTE:** The HTML needs to have a body element since that is the root of your application by default.
 
-**NOTE_new:** Styles need to be loaded before the renderer is triggered.
+**NOTE_v2:** Styles need to be loaded before the renderer is triggered.
 
-**NOTE_new_final:** You can load more cssx by using the `load-cssx()` function
-
-#### A simple style.css
-This generates 2 elements (`main` and `button`)
+**NOTE_v2_final:** You can load more cssx by using the `load-cssx()` function
 
 ```css
+/* style.css */
+
 :root {
+  /* creates 2 elements main and button */
   --cssx-children: main#main-el button#my-button;
 }
 
@@ -60,23 +64,24 @@ Wow. You couldn't come up with a more boring example if you tried.
 [More in the examples directory](https://github.com/phenax/css-everything/tree/main/examples)
 
 
-## Docs
-WIP. Coming soon maybe?
 
+---
 
 
 ## Frequently Acquisitioned Queries
-#### Why?
+### Why?
 Why not?
 
-#### What?
+### What?
 What?
 
 ### What time is it?
 Why don't you ask that to [this example](https://codepen.io/phenax/pen/KKbKNeb?editors=1100)?
 
-#### How does it work?
+### How does it work?
 It starts by reading the `--cssx-children` property on the body. Which is then parsed and evaluated and the necassary child nodes are created.
 For each element that is managed by cssx (i.e. not created via js or html or `--cssx-disgustingly-set-innerhtml` or `js-eval`), we then look for event handler properties present on the node. These properties are parsed and evaluated when the relevant event is triggered.
 
+### Does it parse the entire css
+No. The browser does most of it. Only the fancy `--cssx-*` properties use a custom parser.
 
