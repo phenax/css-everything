@@ -55,6 +55,8 @@ Wow. You couldn't come up with a more boring example if you tried.
 
 [Here's a todo example then](https://codepen.io/phenax/pen/QWzWGaV?editors=1100)
 
+[More in the examples directory](https://github.com/phenax/css-everything/tree/main/examples)
+
 
 ## Docs
 WIP. Coming soon maybe?

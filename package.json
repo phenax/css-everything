@@ -5,6 +5,12 @@
   "repository": "https://github.com/phenax/css-everything",
   "author": "Akshay Nair <phenax5@gmail.com>",
   "license": "MIT",
+  "files": [
+    "dist/",
+    "src/",
+    "README.md",
+    "LICENSE"
+  ],
   "scripts": {
     "build": "tsc && node esbuild.js",
     "serve": "serve -p 3000 .",
