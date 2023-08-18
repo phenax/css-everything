@@ -3,6 +3,7 @@
   --color-accent: #5180e9;
 
   font-size: 16px;
+  font-family: sans-serif;
   color: #555;
 
   --cssx-children: main#container;
@@ -80,27 +81,40 @@ body * { box-sizing: border-box; }
 [data-instance=task-item] {
   --text: "default text";
   --done: "false";
+  --is-editing: "false";
 
   padding: 1rem;
-  cursor: pointer;
   display: flex;
   width: 100%;
   align-items: center;
 
   --cssx-on-mount: update(--task-item-id, attr(data-element));
 
-  --cssx-on-click: update(--done, if(get-var(--done), "false", "true"));
-  --cssx-on-update: update(":scope [data-element=checkbox]", --checked, if(get-var(--done), true, false));
+  --cssx-on-update:
+    update(
+      ':scope [data-element=edit-task-form]',
+      display,
+      if(get-var(--is-editing), 'block', 'none')
+    )
+    update(
+      ':scope [data-element=task-text]',
+      display,
+      if(get-var(--is-editing), 'none', 'block')
+    )
+    if(get-var(--is-editing),
+      set-attr(':scope [data-element=edit-task-input]', value, get-var(--text)),
+      "")
+    if(get-var(--is-editing),
+      call(':scope [data-element=edit-task-input]', focus),
+      "")
+  ;
 
-  --cssx-children: div#checkbox div#task-text button#delete-task;
-}
-
-[data-instance=task-item] [data-element=task-text] {
-  flex: 2;
-}
-[data-instance=task-item] [data-element=task-text]::after {
-  content: var(--text);
-  padding-left: 0.8rem;
+  --cssx-children:
+    div#checkbox
+    div#task-text
+    form#edit-task-form
+    button#delete-task
+  ;
 }
 
 [data-instance=task-item]:not(:first-child) {
@@ -108,19 +122,61 @@ body * { box-sizing: border-box; }
   border-top: 1px solid var(--color-gray);
 }
 
-[data-instance=task-item] [data-element=checkbox] {
+[data-element=task-text] {
+  flex: 2;
+
+  --cssx-on-click: update(get-var(--task-item-id), --is-editing, "true");
+}
+[data-element=task-text]::after {
+  content: var(--text);
+  padding-left: 0.8rem;
+}
+
+[data-element=edit-task-form] {
+  display: none;
+  width: 100%;
+  padding: 0 .8rem;
+
+  --cssx-children: input#edit-task-input;
+  --cssx-on-submit:
+    prevent-default()
+    update(
+      get-var(--task-item-id),
+      --text,
+      attr(':scope [data-element=edit-task-input]', value)
+    )
+    update(get-var(--task-item-id), --is-editing, "false")
+  ;
+}
+[data-element=edit-task-input] {
+  display: block;
+  width: 100%;
+  border: none;
+  border-bottom: 1px solid gray;
+  font-size: 1rem;
+}
+[data-element=edit-task-input]:focus {
+  outline: 1px solid #aaa;
+}
+
+[data-element=checkbox] {
   --checked: false;
 
   width: 18px;
   height: 18px;
   border: 2px solid gray;
   background-color: transparent;
+  cursor: pointer;
+
+  --cssx-on-click: update(--checked, if(get-var(--checked), false, true));
 
   --cssx-on-update:
-    update(background-color, if(get-var(--checked), get-var(--color-accent), transparent));
+    update(get-var(--task-item-id), --done, get-var(--checked))
+    update(background-color, if(get-var(--checked), get-var(--color-accent), transparent))
+  ;
 }
 
-[data-instance=task-item] [data-element=delete-task] {
+[data-element=delete-task] {
   --cssx-text: 'Delete';
   --cssx-on-click: remove-element(get-var(--task-item-id));
 }

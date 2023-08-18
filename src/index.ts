@@ -52,7 +52,8 @@ export const injectStyles = () => {
 }
 
 export const getPropertyValue = ($element: HTMLElement, prop: string) => {
-  const value = `${getComputedStyle($element).getPropertyValue(prop)}`.trim()
+  let value = `${getComputedStyle($element).getPropertyValue(prop)}`.trim()
+  value = value.replace(/(^['"])|(['"]$)/gi, '')
   return !value || value === UNSET_PROPERTY_VALUE ? '' : value
 }
 
@@ -68,13 +69,19 @@ const getElement = (
   id: string,
   $node: HTMLElement | Document = document,
 ): HTMLElement | null => {
-  // TODO: Please no ternary
-  const [$element, selector] = /^('|")?[a-z0-9_-]+\1$/gi.test(id)
-    ? [document, `[data-element=${id}]`]
-    : /^:scope/i.test(id)
-    ? [$node, id]
-    : [document, id]
-  return $element.querySelector<HTMLElement>(selector)
+  let $element: Node | null = document,
+    selector: string = id
+
+  if (/^('|")?[a-z0-9_-]+\1$/gi.test(id)) {
+    selector = `[data-element=${id}]`
+  } else if (/^:scope/i.test(id)) {
+    $element = $node
+  } else if (/^:parent\s+/i.test(id)) {
+    $element = $node.parentNode
+    selector = id.replace(/^:parent\s+/i, '')
+  }
+
+  return ($element as Element)?.querySelector<HTMLElement>(selector)
 }
 
 const getEvalActions = (
@@ -158,6 +165,10 @@ const getEvalActions = (
     removeElement: async id => {
       const $el = id ? getElement(id, $element) : $element
       $el?.parentNode?.removeChild($el)
+    },
+    callMethod: async (id, method, args) => {
+      const $el = id ? getElement(id, $element) : $element
+      ;($el as any)[method].call($el, args)
     },
   }
   return actions
