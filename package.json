@@ -1,6 +1,6 @@
 {
   "name": "@css-everything/render",
-  "version": "0.0.1",
+  "version": "0.0.2",
   "main": "src/index.ts",
   "repository": "https://github.com/phenax/css-everything",
   "author": "Akshay Nair <phenax5@gmail.com>",
