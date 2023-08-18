@@ -18,7 +18,7 @@ You can start by adding the script tag for the renderer inside the body
     <link href="./style.css" rel="stylesheet" />
   </head>
   <body>
-    <script async defer src="https://unpkg.com/@css-everything/render@0.0.1/dist/renderer/index.js"></script>
+    <script async defer src="https://unpkg.com/@css-everything/render/dist/renderer/index.js"></script>
   </body>
 </html>
 ```
