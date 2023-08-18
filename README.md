@@ -38,31 +38,28 @@ You can start by adding the script tag for the renderer inside the body
 }
 
 #main-el {
-  --text: "Loading...";
+  --text: "<stuff>";
 }
 #main-el::after {
   content: var(--text);
 }
 
 #my-button {
-  --cssx-text: 'Update text';
+  --cssx-text: "Click me";
   /* On click, waits for 1 second and then updates the --text property #main-el */
-  --cssx-on-click:
-    delay(1s)
-    update(main-el, --text, "Hello world. Set text!");
+  --cssx-on-click: update(main-el, --text, "Loading...") delay(1s)
+    update(main-el, --text, "Hello world!");
 }
 ```
 
 [Here's the code in action](https://codepen.io/phenax/pen/gOZOLgR?editors=1100)
 
-Wow. You couldn't come up with a more boring example if you tried.
+> "Wow. You couldn't come up with a more boring example if you tried."
 
-[Here's a todo example then](https://codepen.io/phenax/pen/QWzWGaV?editors=1100)
-
-[Here's a simple time example](https://codepen.io/phenax/pen/KKbKNeb?editors=1100)
-
-[More in the examples directory](https://github.com/phenax/css-everything/tree/main/examples)
-
+Alright. You don't have to be mean about it.
+- [Here's a todo example](https://codepen.io/phenax/pen/QWzWGaV?editors=1100)
+- [Here's a simple date example](https://codepen.io/phenax/pen/KKbKNeb?editors=1100)
+- [More in the examples directory](https://github.com/phenax/css-everything/tree/main/examples)
 
 
 ---
