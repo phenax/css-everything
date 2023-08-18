@@ -96,7 +96,7 @@ const getFunctions = (name: string, args: Expr[], actions: EvalActions) => {
     },
     'js-eval': async () => {
       const js = await evalExpr(args[0], actions)
-      js && (await actions.jsEval(js))
+      return js && (await actions.jsEval(js))
     },
 
     'load-cssx': async () => {
