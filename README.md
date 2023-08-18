@@ -47,7 +47,9 @@ You can start by adding the script tag for the renderer inside the body
 #my-button {
   --cssx-text: "Click me";
   /* On click, waits for 1 second and then updates the --text property #main-el */
-  --cssx-on-click: update(main-el, --text, "Loading...") delay(1s)
+  --cssx-on-click:
+    update(main-el, --text, "Loading...")
+    delay(1s)
     update(main-el, --text, "Hello world!");
 }
 ```
