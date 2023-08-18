@@ -102,9 +102,6 @@ body * { box-sizing: border-box; }
       if(get-var(--is-editing), 'none', 'block')
     )
     if(get-var(--is-editing),
-      set-attr(':scope [data-element=edit-task-input]', value, get-var(--text)),
-      "")
-    if(get-var(--is-editing),
       call(':scope [data-element=edit-task-input]', focus),
       "")
   ;
@@ -123,19 +120,18 @@ body * { box-sizing: border-box; }
 }
 
 [data-element=task-text] {
+  padding: .2rem .8rem;
   flex: 2;
-
   --cssx-on-click: update(get-var(--task-item-id), --is-editing, "true");
 }
 [data-element=task-text]::after {
   content: var(--text);
-  padding-left: 0.8rem;
 }
 
 [data-element=edit-task-form] {
   display: none;
   width: 100%;
-  padding: 0 .8rem;
+  padding: 0 .5rem;
 
   --cssx-children: input#edit-task-input;
   --cssx-on-submit:
@@ -154,6 +150,10 @@ body * { box-sizing: border-box; }
   border: none;
   border-bottom: 1px solid gray;
   font-size: 1rem;
+  padding: .2rem .3rem;
+
+  --cssx-on-focus: set-attr(value, get-var(--text));
+  --cssx-on-blur: update(get-var(--task-item-id), --is-editing, "false");
 }
 [data-element=edit-task-input]:focus {
   outline: 1px solid #aaa;

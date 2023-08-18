@@ -21,16 +21,17 @@
   - (x) on update
   - (x) access child from an instance (update checkbox)
   - (x) access instance from child (delete task)
-  - ( ) Update --cssx-text on update
-  - ( ) keyboard events
+  - (x) focus blur events
   - ( ) string concatenation
   - ( ) eval
+  - ( ) Update --cssx-text on update
+  - ( ) keyboard events
   - ( ) Code cleanup
   - ( ) `request` error handling
 
 * Later
-  - ( ) `add-class` & `remove-class` should use self if id is not specified?
   - ( ) Evaluate `calc`
+  - ( ) `add-class` & `remove-class` should use self if id is not specified?
   - ( ) access an instance of component
   - ( ) Additional events
   - ( ) Improve error messages

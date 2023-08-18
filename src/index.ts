@@ -15,6 +15,8 @@ const EVENT_HANDLERS = {
   click: '--cssx-on-click',
   load: '--cssx-on-load',
   submit: '--cssx-on-submit',
+  blur: '--cssx-on-blur',
+  focus: '--cssx-on-focus',
   [CSSX_ON_MOUNT_EVENT]: '--cssx-on-mount',
   [CSSX_ON_UPDATE_EVENT]: '--cssx-on-update',
 }
