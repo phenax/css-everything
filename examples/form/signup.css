@@ -4,10 +4,11 @@
   max-width: 700px;
   margin: 1rem auto;
 
-  --cssx-disgustingly-set-innerhtml: "<h1 class='form-title'>Sign-<b>Up</b></h1>";
-
-  --cssx-children: form#form;
   --count: '0';
+
+  --cssx-disgustingly-set-innerhtml:
+    "<h1 class='form-title'>Sign-<b>Up</b></h1>";
+  --cssx-children: form#form;
 }
 
 .form-title {
@@ -25,11 +26,15 @@
 #form {
   display: block;
 
-  --cssx-on-submit: prevent-default() add-class(form, 'submitting')
-    request('/examples/') remove-class(form, 'submitting')
-    add-class(form, 'submitted');
+  --cssx-on-submit:
+    prevent-default()
+    add-class(form, 'submitting')
+    request('/examples/')
+    remove-class(form, 'submitting')
+    add-class(form, 'submitted')
+  ;
 
-  --cssx-children: input#input-email input#input-password actions #message;
+  --cssx-children: input#input-email input#input-password #actions #message;
 }
 #form.submitted #message::after {
   display: block;

@@ -1,9 +1,7 @@
 body {
-  --cssx-children: button#signup-btn signup-page;
+  --cssx-children: button#signup-btn #signup-page;
 }
-body * {
-  box-sizing: border-box;
-}
+body * { box-sizing: border-box; }
 
 #signup-btn {
   display: inline-block;
@@ -14,10 +12,13 @@ body * {
   padding: 0.5rem 1rem;
   cursor: pointer;
 
-  --cssx-on-click: add-class(signup-page, 'loading')
-    add-class(signup-btn, 'loading') delay(0.5s)
+  --cssx-on-click:
+    add-class(signup-page, 'loading')
+    add-class(signup-btn, 'loading')
+    delay(0.5s)
     load-cssx(signup-page-content, './signup.css')
-    remove-class(signup-page, 'loading') remove-class(signup-btn, 'loading');
+    remove-class(signup-page, 'loading')
+    remove-class(signup-btn, 'loading');
 }
 #signup-btn::after {
   content: 'Register now to start your free trial for $99';
@@ -31,7 +32,7 @@ body * {
 }
 
 #signup-page {
-  --cssx-children: signup-page-content;
+  --cssx-children: div#signup-page-content;
 }
 #signup-page.loading::after {
   content: 'Loading...';

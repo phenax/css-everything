@@ -64,15 +64,27 @@ export const getDeclarations = (
   return extractDeclaration(value, actions)
 }
 
+const getElement = (
+  id: string,
+  $node: HTMLElement | Document = document,
+): HTMLElement | null => {
+  // TODO: Please no ternary
+  const [$element, selector] = /^('|")?[a-z0-9_-]+\1$/gi.test(id)
+    ? [document, `[data-element=${id}]`]
+    : /^:scope/i.test(id)
+    ? [$node, id]
+    : [document, id]
+  return $element.querySelector<HTMLElement>(selector)
+}
+
 const getEvalActions = (
   $element: HTMLElement,
   { event = null, pure = false }: { event?: any; pure?: boolean },
 ): EvalActions => {
   const actions: EvalActions = {
-    addClass: async (id, cls) =>
-      document.getElementById(id)?.classList.add(cls),
+    addClass: async (id, cls) => getElement(id, $element)?.classList.add(cls),
     removeClass: async (id, cls) =>
-      document.getElementById(id)?.classList.remove(cls),
+      getElement(id, $element)?.classList.remove(cls),
     delay: delay => new Promise(res => setTimeout(res, delay)),
     jsEval: async js => !pure && (0, eval)(js),
     loadCssx: async (id, url) =>
@@ -84,7 +96,7 @@ const getEvalActions = (
               rel: 'stylesheet',
             })
             $link.onload = () => {
-              const $el = document.getElementById(id)
+              const $el = getElement(id, $element)
               if ($el) {
                 manageElement($el)
                 resolve(id)
@@ -97,7 +109,7 @@ const getEvalActions = (
           }),
     getVariable: async varName => getPropertyValue($element, varName),
     updateVariable: async (targetId, varName, value) => {
-      const $el = targetId ? document.getElementById(targetId) : $element
+      const $el = targetId ? getElement(targetId, $element) : $element
       const isCustomProp = varName.startsWith('--')
       if ($el) {
         const prevValue = getPropertyValue($el, varName)
@@ -114,7 +126,7 @@ const getEvalActions = (
       }
     },
     setAttribute: async (id, name, value) => {
-      const $el = id ? document.getElementById(id) : $element
+      const $el = id ? getElement(id, $element) : $element
       if (name === 'value') {
         ;($el as any).value = value
       } else if (value) {
@@ -124,7 +136,7 @@ const getEvalActions = (
       }
     },
     getAttribute: async (id, name) => {
-      const $el = id ? document.getElementById(id) : $element
+      const $el = id ? getElement(id, $element) : $element
       if (name === 'value') return ($el as any).value
       return $el?.getAttribute(name) ?? undefined
     },
@@ -139,12 +151,12 @@ const getEvalActions = (
       // TODO: Handle response?
     },
     addChildren: async (id, children) => {
-      const $el = document.getElementById(id)
+      const $el = getElement(id, $element)
       const declarations = await expressionsToDeclrs(children, actions)
       $el && createLayer(declarations, $el)
     },
     removeElement: async id => {
-      const $el = id ? document.getElementById(id) : $element
+      const $el = id ? getElement(id, $element) : $element
       $el?.parentNode?.removeChild($el)
     },
   }

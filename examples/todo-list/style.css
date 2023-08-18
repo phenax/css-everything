@@ -87,8 +87,10 @@ body * { box-sizing: border-box; }
   width: 100%;
   align-items: center;
 
+  --cssx-on-mount: update(--task-item-id, attr(data-element));
+
   --cssx-on-click: update(--done, if(get-var(--done), "false", "true"));
-  --cssx-on-update: update(checkbox, --checked, if(get-var(--done), true, false));
+  --cssx-on-update: update(":scope [data-element=checkbox]", --checked, if(get-var(--done), true, false));
 
   --cssx-children: div#checkbox div#task-text button#delete-task;
 }
@@ -97,7 +99,7 @@ body * { box-sizing: border-box; }
   flex: 2;
 }
 [data-instance=task-item] [data-element=task-text]::after {
-  content: "[" var(--done) "] " var(--text);
+  content: var(--text);
   padding-left: 0.8rem;
 }
 
@@ -115,11 +117,10 @@ body * { box-sizing: border-box; }
   background-color: transparent;
 
   --cssx-on-update:
-    update(background-color, if(get-var(--checked), get-var(--color-accent), transparent))
-  ;
+    update(background-color, if(get-var(--checked), get-var(--color-accent), transparent));
 }
 
 [data-instance=task-item] [data-element=delete-task] {
   --cssx-text: 'Delete';
-  --cssx-on-click: remove-element(task-item);
+  --cssx-on-click: remove-element(get-var(--task-item-id));
 }
