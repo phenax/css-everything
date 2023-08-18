@@ -36,17 +36,17 @@ describe('todo-app example', () => {
       await submit('Buy Milk')
       expect($taskItems).toHaveLength(1)
       expect(getComputedStyle($taskItems[0]).getPropertyValue('--text')).toBe(
-        'Buy Milk',
+        '"Buy Milk"',
       )
 
       // Add the second item
       await submit('Kill all the non-believers')
       expect($taskItems).toHaveLength(2)
       expect(getComputedStyle($taskItems[0]).getPropertyValue('--text')).toBe(
-        'Buy Milk',
+        '"Buy Milk"',
       )
       expect(getComputedStyle($taskItems[1]).getPropertyValue('--text')).toBe(
-        'Kill all the non-believers',
+        '"Kill all the non-believers"',
       )
     })
 

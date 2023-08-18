@@ -1,14 +1,14 @@
 {
-  "name": "@cssx/render",
+  "name": "@css-everything/render",
   "version": "0.0.0",
   "main": "src/index.ts",
-  "repository": "__",
+  "repository": "https://github.com/phenax/css-everything",
   "author": "Akshay Nair <phenax5@gmail.com>",
   "license": "MIT",
   "scripts": {
     "build": "tsc && node esbuild.js",
     "serve": "serve -p 3000 .",
-    "format": "prettier --write './{src,tests}/**/*.{ts,html,css}' './examples/**/*.{html,css}'",
+    "format": "prettier --write './{src,tests}/**/*.{ts,html,css}'",
     "lint": "eslint ./src",
     "fix": "yarn lint --fix && yarn format",
     "test": "jest"
