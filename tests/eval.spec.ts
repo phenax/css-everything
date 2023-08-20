@@ -1,5 +1,5 @@
-import { EvalActions, evalExpr } from '../src/eval'
-import { Expr } from '../src/parser'
+import { EvalActions, EvalValue, evalExpr } from '../src/eval'
+import { Expr, exprParser, parseExpr } from '../src/parser'
 
 describe('eval', () => {
   const deps: EvalActions = {
@@ -20,8 +20,60 @@ describe('eval', () => {
     callMethod: jest.fn(),
   }
 
-  fit('should do stuff', () => {
-    console.log('yo')
+  fdescribe('function/call', () => {
+    it('should declare function correctly', async () => {
+      const evalValue = await evalExpr(
+        parseExpr(`func(if(get-var(--bool), 'false', 'true'))`),
+        deps,
+      )
+      expect(evalValue).toEqual(
+        EvalValue.Lazy([
+          Expr.Call({
+            name: 'if',
+            args: [
+              Expr.Call({
+                name: 'get-var',
+                args: [Expr.VarIdentifier('--bool')],
+              }),
+              Expr.LiteralString('false'),
+              Expr.LiteralString('true'),
+            ],
+          }),
+        ]),
+      )
+    })
+
+    it('should allow multiple expressions in func', async () => {
+      const evalValue = await evalExpr(
+        parseExpr(`func(
+          update(--some-var, 'hello world'),
+          if(get-var(--bool), 'false', 'true')
+        )`),
+        deps,
+      )
+      expect(evalValue).toEqual(
+        EvalValue.Lazy([
+          Expr.Call({
+            name: 'update',
+            args: [
+              Expr.VarIdentifier('--some-var'),
+              Expr.LiteralString('hello world'),
+            ],
+          }),
+          Expr.Call({
+            name: 'if',
+            args: [
+              Expr.Call({
+                name: 'get-var',
+                args: [Expr.VarIdentifier('--bool')],
+              }),
+              Expr.LiteralString('false'),
+              Expr.LiteralString('true'),
+            ],
+          }),
+        ]),
+      )
+    })
   })
 
   it('should add classes', async () => {

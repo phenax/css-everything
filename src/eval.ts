@@ -245,7 +245,9 @@ const getFunctions = (
       return EvalValue.Void()
     },
 
-    _: () => Promise.reject(new Error('not supposed to be here')),
+    func: async () => EvalValue.Lazy(args),
+
+    _: () => Promise.reject(new Error(`Not implemented: ${name}`)),
   })
 }
 

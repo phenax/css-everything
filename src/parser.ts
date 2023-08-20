@@ -108,6 +108,18 @@ const exprParser: P.Parser<Expr> = P.or([
   identifierExprParser,
 ])
 
+export const parseExpr = (input: string): Expr => {
+  return match(exprParser(input), {
+    Ok: ({ value, input }) => {
+      if (input) throw new Error(`Aaaaaa. Input left: ${input}`)
+      return value
+    },
+    Err: e => {
+      throw e
+    },
+  })
+}
+
 const declarationParser = P.or([callExprParser, selectorExprParser])
 
 const multiDeclarationParser = P.sepBy(declarationParser, whitespace)
