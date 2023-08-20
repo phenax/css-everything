@@ -1,10 +1,16 @@
-import { EvalActions, evalExpr, evalExprAsString } from './eval'
+import {
+  EvalActions,
+  EvalValue,
+  evalExpr,
+  evalExprAsString,
+  evalValueToString,
+} from './eval'
 import {
   extractDeclaration,
   DeclarationEval,
   expressionsToDeclrs,
 } from './declarations'
-import { parse } from './parser'
+import { Expr, parse } from './parser'
 import { match, matchString } from './utils/adt'
 
 const CSSX_ON_UPDATE_EVENT = 'cssx--update'
@@ -88,8 +94,10 @@ const getElement = (
 
 const getEvalActions = (
   $element: HTMLElement,
-  { event = null, pure = false }: { event?: any; pure?: boolean },
+  ctx: { event?: any; pure?: boolean },
 ): EvalActions => {
+  const { event = null, pure = false } = ctx
+
   const actions: EvalActions = {
     addClass: async (id, cls) => getElement(id, $element)?.classList.add(cls),
     removeClass: async (id, cls) =>
@@ -172,8 +180,37 @@ const getEvalActions = (
       const $el = id ? getElement(id, $element) : $element
       ;($el as any)[method].call($el, args)
     },
+
+    evaluateInScope: async (exprs, properties) => {
+      const node = document.createElement('div')
+      node.style.display = 'none'
+
+      for (const [key, evalVal] of Object.entries(properties)) {
+        const value = evalValueToString(evalVal)
+        console.log(key, evalVal, value)
+        value && node.style.setProperty(key, value)
+      }
+      $element.appendChild(node)
+
+      const result = await evalExprInScope(exprs, getEvalActions(node, ctx))
+
+      // node.parentNode?.removeChild(node)
+
+      return result
+    },
   }
   return actions
+}
+
+const evalExprInScope = async (
+  exprs: Expr[],
+  actions: EvalActions,
+): Promise<EvalValue> => {
+  let lastVal = EvalValue.Void()
+  for (const expr of exprs) {
+    lastVal = await evalExpr(expr, actions)
+  }
+  return lastVal
 }
 
 export const handleEvents = async (
@@ -185,10 +222,10 @@ export const handleEvents = async (
 
     if (handlerExpr) {
       const eventHandler = async (event: any) => {
-        const exprs = parse(handlerExpr)
-        for (const expr of exprs) {
-          await evalExpr(expr, getEvalActions($element, { event }))
-        }
+        await evalExprInScope(
+          parse(handlerExpr),
+          getEvalActions($element, { event }),
+        )
       }
 
       matchString(eventType, {

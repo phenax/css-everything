@@ -1,4 +1,4 @@
-import { CSSUnit, Expr } from './parser'
+import { CSSUnit, Expr, parse } from './parser'
 import { Enum, constructors, match, matchString } from './utils/adt'
 
 export interface EvalActions {
@@ -36,6 +36,10 @@ export interface EvalActions {
     method: string,
     args: (string | undefined)[],
   ): Promise<void>
+  evaluateInScope(
+    exprs: Expr[],
+    properties: Record<string, EvalValue>,
+  ): Promise<EvalValue>
   // calculate ??
 }
 
@@ -46,6 +50,7 @@ export type EvalValue = Enum<{
   Lazy: Expr[]
   Void: never
   VarIdentifier: string
+  Map: { [key in string]: EvalValue }
   // Object: Record<any, any>
 }>
 export const EvalValue = constructors<EvalValue>()
@@ -75,7 +80,7 @@ export const evalExpr = async (
     _: async _ => EvalValue.Void(),
   })
 
-const evalValueToString = (val: EvalValue): string | undefined =>
+export const evalValueToString = (val: EvalValue): string | undefined =>
   match<string | undefined, EvalValue>(val, {
     String: s => s.replace(/(^'|")|('|"$)/g, ''),
     Boolean: b => `${b}`,
@@ -245,7 +250,52 @@ const getFunctions = (
       return EvalValue.Void()
     },
 
+    map: async () => {
+      const values = await Promise.all(
+        args.map(async mapExpr =>
+          match<Promise<undefined | [string, EvalValue]>, Expr>(mapExpr, {
+            Pair: async ({ key, value }) => [
+              key,
+              await evalExpr(value, actions),
+            ],
+            _: async () => undefined,
+          }),
+        ),
+      )
+
+      return EvalValue.Map(Object.fromEntries(values.filter(Boolean) as any))
+    },
+
     func: async () => EvalValue.Lazy(args),
+
+    call: async () => {
+      const varId = match<string | undefined, EvalValue>(
+        await evalExpr(args[0], actions),
+        {
+          VarIdentifier: id => id,
+          _: () => undefined,
+        },
+      )
+
+      const propMapExpr = await evalExpr(args[1], actions)
+      const properties = match<Record<string, EvalValue>, EvalValue>(
+        propMapExpr,
+        {
+          Map: m => m,
+          _: () => ({}),
+        },
+      )
+
+      if (varId) {
+        const prop = await actions.getVariable(varId)
+        if (prop) {
+          const exprs = parse(prop)
+          return actions.evaluateInScope(exprs, properties)
+        }
+      }
+
+      return EvalValue.Void()
+    },
 
     _: () => Promise.reject(new Error(`Not implemented: ${name}`)),
   })

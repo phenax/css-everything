@@ -1,5 +1,5 @@
 import { EvalActions, EvalValue, evalExpr } from '../src/eval'
-import { Expr, exprParser, parseExpr } from '../src/parser'
+import { Expr, parseExpr } from '../src/parser'
 
 describe('eval', () => {
   const deps: EvalActions = {
@@ -18,6 +18,7 @@ describe('eval', () => {
     addChildren: jest.fn(),
     removeElement: jest.fn(),
     callMethod: jest.fn(),
+    evaluateInScope: jest.fn(),
   }
 
   fdescribe('function/call', () => {

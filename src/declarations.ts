@@ -62,6 +62,7 @@ export const toDeclaration = (expr: Expr): Declaration | undefined => {
             _: _ => {},
           })
 
+          // TODO: Refactor with eval
           match(map, {
             Call: ({ name, args }) => {
               if (name !== 'map') return
