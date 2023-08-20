@@ -102,7 +102,7 @@ body * { box-sizing: border-box; }
       if(get-var(--is-editing), 'none', 'block')
     )
     if(get-var(--is-editing),
-      call(':scope [data-element=edit-task-input]', focus),
+      call-method(':scope [data-element=edit-task-input]', focus),
       "")
   ;
 
@@ -122,6 +122,7 @@ body * { box-sizing: border-box; }
 [data-element=task-text] {
   padding: .2rem .8rem;
   flex: 2;
+
   --cssx-on-click: update(get-var(--task-item-id), --is-editing, "true");
 }
 [data-element=task-text]::after {

@@ -1,4 +1,28 @@
 * Now
+  - (x) Refactor eval to return EvalValue
+  - ( ) Functions. `--my-func: func(if(get-var(--x), get-var(--y), ""))`.
+  - ( ) Function calls. `call(get-var(--my-func), --x: 6, --y: 2)`
+  - ( ) Evaluate `calc`
+  - ( ) string concatenation
+  - ( ) analog + digital clock example
+
+* Later
+  - ( ) Update `--cssx-text` on update
+  - ( ) `request` error handling
+  - ( ) `has-class`
+  - ( ) `add-class` & `remove-class` should use self if id is not specified?
+  - ( ) keyboard events
+  - ( ) Code cleanup
+  - ( ) Additional events
+  - ( ) Improve parser error messages
+  - ( ) Improve eval error messages
+  - ( ) filter for on update on specific properties
+
+* Maybe
+  - ( ) `list` & `tuple` data structures?
+  - ( ) *server-side css*? Why the fuck not!?
+
+* Done
   - (x) Hydrate existing elements instead of re-creating
   - (x) `load-cssx` functions
   - (x) `get-variable`
@@ -22,23 +46,4 @@
   - (x) access child from an instance (update checkbox)
   - (x) access instance from child (delete task)
   - (x) focus blur events
-  - ( ) string concatenation
-  - ( ) eval
-  - ( ) Update --cssx-text on update
-  - ( ) keyboard events
-  - ( ) Code cleanup
-  - ( ) `request` error handling
-
-* Later
-  - ( ) Evaluate `calc`
-  - ( ) `add-class` & `remove-class` should use self if id is not specified?
-  - ( ) access an instance of component
-  - ( ) Additional events
-  - ( ) Improve error messages
-  - ( ) filter for on update on specific properties
-  - ( ) update property on child on update of parent
-
-* Maybe
-  - ( ) `list` & `tuple` data structures?
-  - ( ) server-side css? Why the fuck not!?
 

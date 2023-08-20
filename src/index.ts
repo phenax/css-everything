@@ -1,4 +1,4 @@
-import { EvalActions, evalExpr } from './eval'
+import { EvalActions, evalExpr, evalExprAsString } from './eval'
 import {
   extractDeclaration,
   DeclarationEval,
@@ -274,7 +274,7 @@ export const manageElement = async (
     try {
       const exprs = parse(text)
       $element.textContent =
-        (exprs[0] ? await evalExpr(exprs[0], actions) : text) ?? text
+        (exprs[0] ? await evalExprAsString(exprs[0], actions) : text) ?? text
     } catch (e) {
       $element.textContent = text
     }

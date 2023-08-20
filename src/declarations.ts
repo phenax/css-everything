@@ -1,4 +1,4 @@
-import { EvalActions, evalExpr } from './eval'
+import { EvalActions, evalExprAsString } from './eval'
 import { Expr, Selector, SelectorComp, parseDeclarations } from './parser'
 import { match, matchString } from './utils/adt'
 
@@ -22,7 +22,9 @@ export const evaluateDeclaration = async (
   const props = await Promise.all(
     [...properties.entries()].map(async ([key, expr]) => {
       // Ignore errors?
-      const result = await evalExpr(expr, actions).catch(e => console.warn(e))
+      const result = await evalExprAsString(expr, actions).catch((e: any) =>
+        console.warn(e),
+      )
       return [key, result ?? ''] as const
     }),
   )

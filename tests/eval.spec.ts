@@ -11,7 +11,18 @@ describe('eval', () => {
     getVariable: jest.fn(),
     updateVariable: jest.fn(),
     setAttribute: jest.fn(),
+    getAttribute: jest.fn(),
+    withEvent: jest.fn(),
+    getFormData: jest.fn(),
+    sendRequest: jest.fn(),
+    addChildren: jest.fn(),
+    removeElement: jest.fn(),
+    callMethod: jest.fn(),
   }
+
+  fit('should do stuff', () => {
+    console.log('yo')
+  })
 
   it('should add classes', async () => {
     await evalExpr(
