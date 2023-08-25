@@ -78,8 +78,7 @@ What?
 Why don't you ask that to [this example](https://codepen.io/phenax/pen/KKbKNeb?editors=1100)?
 
 ### How does it work?
-It starts by reading the `--cssx-children` property on the body. Which is then parsed and evaluated and the necassary child nodes are created.
-For each element that is managed by cssx (i.e. not created via js or html or `--cssx-disgustingly-set-innerhtml` or `js-eval`), we then look for event handler properties present on the node. These properties are parsed and evaluated when the relevant event is triggered.
+[Here's how it works](https://github.com/phenax/css-everything/tree/main/docs/how-it-works.md).
 
 ### Does it parse the entire css
 No. The browser does most of it. Only the fancy `--cssx-*` properties use a custom parser.
