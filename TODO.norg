@@ -6,8 +6,8 @@
   - (x) analog + digital clock example
   - (x) error handling try
   - (x) Scoped catch on try
-  - ( ) `do` expression
-  - ( ) `let` expression
+  - (x) `do` expression
+  - (x) `let` expression
   - ( ) `has-class`
   - ( ) `add-class` & `remove-class` should use self if id is not specified?
   - ( ) Update `--cssx-text` on update

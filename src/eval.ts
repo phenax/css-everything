@@ -130,6 +130,13 @@ const getFunctions = (
     })
   }
 
+  const jsEval = async () => {
+    const js = await evalExprAsString(args[0], actions)
+    const result = js && (await actions.jsEval(js))
+    if (result === undefined || result === null) return EvalValue.Void()
+    return EvalValue.Value(result)
+  }
+
   return matchString<Promise<EvalValue>>(name, {
     'add-class': async () => {
       const id = evalValueToString(await evalExpr(args[0], actions))
@@ -161,12 +168,9 @@ const getFunctions = (
       num !== undefined ? await actions.delay(num) : undefined
       return EvalValue.Void()
     },
-    'js-eval': async () => {
-      const js = await evalExprAsString(args[0], actions)
-      const result = js && (await actions.jsEval(js))
-      if (result === undefined || result === null) return EvalValue.Void()
-      return EvalValue.Value(result)
-    },
+
+    'js-eval': jsEval,
+    'js-expr': jsEval,
 
     'load-cssx': async () => {
       const id = evalValueToString(await evalExpr(args[0], actions))
@@ -338,6 +342,16 @@ const getFunctions = (
         result = await evalExpr(expr, actions)
       }
       return result
+    },
+
+    let: async () => {
+      const varName = await evalExprAsString(args[0], actions)
+      const result = await evalExpr(args[1], actions)
+      if (!varName) return EvalValue.Void()
+
+      return actions.evaluateInScope([args[2]], {
+        [varName]: result,
+      })
     },
 
     _: () => Promise.reject(new Error(`Not implemented: ${name}`)),
