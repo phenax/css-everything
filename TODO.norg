@@ -4,20 +4,19 @@
   - (x) some way to de-quotify values?
   - (x) re-quotify value
   - (x) analog + digital clock example
+  - (x) error handling try
   - ( ) `has-class`
   - ( ) `add-class` & `remove-class` should use self if id is not specified?
   - ( ) Update `--cssx-text` on update
-  - ( ) fix invalid expr in functions error
 
 * Later
-  - ( ) FFI interface to declare functions
-  - ( ) `request` error handling
   - ( ) keyboard events
   - ( ) Code cleanup
   - ( ) Additional events
   - ( ) Improve parser error messages
   - ( ) Improve eval error messages
   - ( ) filter for on update on specific properties
+  - ( ) FFI interface to declare functions
 
 * Maybe
   - ( ) `--cssx-use-properties: --parent-prop;` to trigger nested property update

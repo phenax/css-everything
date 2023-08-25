@@ -142,7 +142,7 @@ export const parseDeclarations = (input: string) =>
   )
 
 export const parse = (input: string): Array<Expr> => {
-  const res = P.many1(exprParser)(input.trim())
+  const res = P.sepBy(exprParser, P.or([comma, whitespace]))(input.trim())
   return match(res, {
     Ok: ({ value, input }) => {
       if (input) {

@@ -44,6 +44,7 @@ body * { box-sizing: border-box; }
 
   --cssx-on-mount: update(--date, call(--get-date));
   --cssx-on-update:
+    update('[data-element=seconds]', --angle, js-eval("360 * new Date().getSeconds() / 60 - 90")),
     update('[data-element=seconds]', --angle, js-eval("360 * new Date().getSeconds() / 60 - 90"))
     update('[data-element=minutes]', --angle, js-eval("360 * new Date().getMinutes() / 60 - 90"))
     update('[data-element=hours]', --angle,

@@ -322,6 +322,14 @@ const getFunctions = (
       return EvalValue.String(dequotify(str || ''))
     },
 
+    try: async () => {
+      try {
+        return await evalExpr(args[0], actions)
+      } catch (e) {
+        return evalExpr(args[1], actions)
+      }
+    },
+
     _: () => Promise.reject(new Error(`Not implemented: ${name}`)),
   })
 }
