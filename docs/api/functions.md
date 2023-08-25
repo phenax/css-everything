@@ -108,16 +108,16 @@ Example -
 ```css
 #my-element {
   --factorial: if(
-    js-expr(string(get-var(--n), '> 1')),
-    js-expr(string(
+    js-eval(string(get-var(--n), '> 1')),
+    js-eval(string(
       get-var(--n),
       ' * ',
-      call(--factorial, map(--n: js-expr(string(get-var(--n), ' - 1'))))
+      call(--factorial, map(--n: js-eval(string(get-var(--n), ' - 1'))))
     )),
     1
   );
 
-  --cssx-on-mount: js-expr(string(
+  --cssx-on-mount: js-eval(string(
     'console.log("',
       call(--factorial, map(--n: 5)),
     '")'
@@ -132,13 +132,13 @@ Because we use named properties as arguments and css is cascading, all named pro
 
 So `--left` and `--right` is implicitly available to `--binary-op`.
 
-> NOTE: `func` in `--binary-op` doesn't do anything. It's to make the developer feel better.
+NOTE: `func` in `--binary-op` doesn't do anything. It's to make the developer feel better.
 
 ```css
 #my-element {
   --binary-op:
     func(--left, --op, --right)
-    js-expr(string(get-var(--left), get-var(--op), get-var(--right)));
+    js-eval(string(get-var(--left), get-var(--op), get-var(--right)));
   --greater-than: call(--binary-op, map(--op: ' >= '));
   --minus: call(--binary-op, map(--op: ' - '));
   --multiply: call(--binary-op, map(--op: ' * '));
@@ -166,7 +166,7 @@ function string(...string): string
 ```css
 #my-element {
   --log-stuff: 'Stuff to log to console';
-  --cssx-on-mount: js-expr(string('console.log("', get-var(--log-stuff), '")'));
+  --cssx-on-mount: js-eval(string('console.log("', get-var(--log-stuff), '")'));
 }
 ```
 
@@ -180,7 +180,7 @@ function quotify(string): `'${string}'`
 ```css
 #my-element {
   --log-stuff: 'Stuff to log to console';
-  --cssx-on-mount: js-expr(string('console.log(', quotify(get-var(--log-stuff)), ')'));
+  --cssx-on-mount: js-eval(string('console.log(', quotify(get-var(--log-stuff)), ')'));
 }
 ```
 

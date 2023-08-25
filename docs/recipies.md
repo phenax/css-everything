@@ -49,7 +49,7 @@ NOTE: Try to avoid doing this. Please refer to [./security.md](./security.md) fo
 ```css
 #my-element {
   --cssx-on-mount: update(--random, '0');
-  --cssx-on-update: delay(500ms) update(--random, js-expr('Math.random()'));
+  --cssx-on-update: delay(500ms) update(--random, js-eval('Math.random()'));
 }
 
 #my-element::after {

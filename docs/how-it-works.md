@@ -1,6 +1,8 @@
 # How does it work?
 Who knows really? It's just magic for the most part.
 
+===
+
 ## Creating the dom tree
 
 Everything starts with the `body` element (by default).
@@ -28,9 +30,6 @@ Let's go deeper...
 ```
 
 Now `my-element`, gets 2 children. You can probably figure out what those would look like.
-
-> NOTE: The styles for `#my-element` has to be loaded into the dom before the
-
 
 You may have already noticed a problem here. If you don't override the --cssx-children property, wouldn't all children of body get access to that?
 
@@ -77,18 +76,18 @@ This is by far the most "fun" aspect of this project. Take a look at the docs fo
 ```css
 #my-element {
   --factorial:
-    func(--n)
+    func(--n: number)
     if(
-      js-expr(string(get-var(--n), '> 1')),
-      js-expr(string(
+      js-eval(string(get-var(--n), '> 1')),
+      js-eval(string(
         get-var(--n),
         ' * ',
-        call(--factorial, map(--n: js-expr(string(get-var(--n), ' - 1'))))
+        call(--factorial, map(--n: js-eval(string(get-var(--n), ' - 1'))))
       )),
       1
     );
 
-  --cssx-on-mount: js-expr(string(
+  --cssx-on-mount: js-eval(string(
     'console.log("',
       call(--factorial, map(--n: 5)),
     '")'
@@ -97,6 +96,7 @@ This is by far the most "fun" aspect of this project. Take a look at the docs fo
 ```
 
 NOTE: `func` is noop and just exists for documentation. You can also do `func(--a: string, --b: number)` and it'll be valid syntax but ignored at evaluation. So basically, typescript.
+NOTE: If you come at me with how using `js-eval` is cheating, I won't be responsible for your injuries. JS-in-CSS is the future.
 
 The way this works is that it creates a new dom element inside the caller (`#my-element`), which then becomes the scope for the function.
 Whatever arguments are passed to call will be added as css properties to this dom element.
@@ -121,10 +121,9 @@ This means that with `call(--factorial, map(--n: 5))` the dom tree would look so
 </div>
 ```
 
-This is the call stack. This is immedietely deleted as soon as the required computation is completed.
+This is the call stack. This is immedietely deleted as soon as the required computation is completed. Not performing any tail-call optimizations for this to make it use just the one element, but if you're interested in giving it a shot, it should be fairly straight-forward to implement.
 
-> PRO TIP 1: If you want the tree to persist even after the function is evaluated for debugging, add the `data-debug-stack` attribute to the caller element
+> PRO TIP 1: If you want the tree to persist even after the function is evaluated (for debugging), add the `data-debug-stack` attribute to the caller element
 > PRO TIP 2: You could style these nodes to have this tree show up in the ui and use the `--cssx-text` property to display the arguments for each recursive function call
-> PRO TIP 3: If you're running into infinite loops, good luck. Also, you can add `delay(1s)` at the start to slow things down to debug.
-
+> PRO TIP 3: If you're running into infinite loops, good luck. Also, you can add `delay(1s)` at the start of the function to slow things down to debug.
 
