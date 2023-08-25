@@ -187,14 +187,13 @@ const getEvalActions = (
 
       for (const [key, evalVal] of Object.entries(properties)) {
         const value = evalValueToString(evalVal)
-        console.log(key, evalVal, value)
         value && node.style.setProperty(key, value)
       }
       $element.appendChild(node)
 
       const result = await evalExprInScope(exprs, getEvalActions(node, ctx))
 
-      // node.parentNode?.removeChild(node)
+      node.parentNode?.removeChild(node)
 
       return result
     },

@@ -51,7 +51,7 @@ export type EvalValue = Enum<{
   Void: never
   VarIdentifier: string
   Map: { [key in string]: EvalValue }
-  // Object: Record<any, any>
+  Value: any
 }>
 export const EvalValue = constructors<EvalValue>()
 
@@ -64,8 +64,8 @@ export const evalExprAsString = async (
 export const evalExpr = async (
   expr: Expr,
   actions: EvalActions,
-): Promise<EvalValue> =>
-  match<Promise<EvalValue>, Expr>(expr, {
+): Promise<EvalValue> => {
+  return match<Promise<EvalValue>, Expr>(expr, {
     Call: async ({ name, args }) => getFunctions(name, args, actions),
     LiteralString: async s => EvalValue.String(s),
     LiteralNumber: async ({ value, unit }) =>
@@ -79,6 +79,7 @@ export const evalExpr = async (
     VarIdentifier: async s => EvalValue.VarIdentifier(s),
     _: async _ => EvalValue.Void(),
   })
+}
 
 const QUOTE_REGEX = /^['"](.*)(?=['"]$)['"]$/g
 const dequotify = (s: string) => s.replace(QUOTE_REGEX, '$1')
@@ -88,14 +89,17 @@ export const evalValueToString = (val: EvalValue): string | undefined =>
     String: s => dequotify(s),
     Boolean: b => `${b}`,
     Number: n => `${n}`,
+    VarIdentifier: s => s,
+    Value: v => `${v}`,
     _: () => undefined,
   })
 
 const evalValueToNumber = (val: EvalValue): number | undefined =>
   match<number | undefined, EvalValue>(val, {
-    String: s => parseInt(s, 10),
+    String: s => parseFloat(s),
     Boolean: b => (b ? 1 : 0),
     Number: n => n,
+    Value: v => parseFloat(v),
     _: () => undefined,
   })
 
@@ -104,6 +108,7 @@ const evalValueToBoolean = (val: EvalValue): boolean =>
     String: s => !['false', '', '0'].includes(dequotify(s)),
     Boolean: b => b,
     Number: n => !!n,
+    Value: v => !!v,
     _: () => false,
   })
 
@@ -157,10 +162,10 @@ const getFunctions = (
       return EvalValue.Void()
     },
     'js-eval': async () => {
-      console.log(args[0])
       const js = await evalExprAsString(args[0], actions)
-      console.log(js)
-      return js && (await actions.jsEval(js))
+      const result = js && (await actions.jsEval(js))
+      if (result === undefined || result === null) return EvalValue.Void()
+      return EvalValue.Value(result)
     },
 
     'load-cssx': async () => {
@@ -282,7 +287,9 @@ const getFunctions = (
         },
       )
 
-      const propMapExpr = await evalExpr(args[1], actions)
+      const propMapExpr = args[1]
+        ? await evalExpr(args[1], actions)
+        : EvalValue.Void()
       const properties = match<Record<string, EvalValue>, EvalValue>(
         propMapExpr,
         {
@@ -308,7 +315,7 @@ const getFunctions = (
     },
     quotify: async () => {
       const str = await evalExprAsString(args[0], actions)
-      return EvalValue.String(`'${str}'`)
+      return EvalValue.String(`'${str || ''}'`)
     },
     dequotify: async () => {
       const str = await evalExprAsString(args[0], actions)
