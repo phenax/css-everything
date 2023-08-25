@@ -1,11 +1,12 @@
 * Now
   - (x) Documentation
-  - ( ) string concatenation/interpolation
+  - (x) string concatenation/interpolation
+  - (x) some way to de-quotify values?
+  - (x) re-quotify value
   - ( ) analog + digital clock example
   - ( ) `--cssx-use-properties: --parent-prop;` to trigger nested property update
   - ( ) Update `--cssx-text` on update
   - ( ) FFI interface to declare functions
-  - ( ) some way to de-quotify values?
   - ( ) `has-class`
   - ( ) `add-class` & `remove-class` should use self if id is not specified?
 

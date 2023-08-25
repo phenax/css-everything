@@ -18,6 +18,10 @@ body * { box-sizing: border-box; }
   border-radius: 5px;
   overflow: hidden;
 
+  --some-str: "Hello";
+
+  --cssx-on-mount: js-eval(string("alert('", quotify(get-var(--some-str)), "')"));
+
   /* --my-func: */
   /*   js-eval(get-var(--js)) */
   /*   delay(1s) */

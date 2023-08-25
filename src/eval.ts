@@ -80,9 +80,12 @@ export const evalExpr = async (
     _: async _ => EvalValue.Void(),
   })
 
+const QUOTE_REGEX = /^['"](.*)(?=['"]$)['"]$/g
+const dequotify = (s: string) => s.replace(QUOTE_REGEX, '$1')
+
 export const evalValueToString = (val: EvalValue): string | undefined =>
   match<string | undefined, EvalValue>(val, {
-    String: s => s.replace(/(^'|")|('|"$)/g, ''),
+    String: s => dequotify(s),
     Boolean: b => `${b}`,
     Number: n => `${n}`,
     _: () => undefined,
@@ -98,7 +101,7 @@ const evalValueToNumber = (val: EvalValue): number | undefined =>
 
 const evalValueToBoolean = (val: EvalValue): boolean =>
   match<boolean, EvalValue>(val, {
-    String: s => !['false', '', '0'].includes(s.replace(/(^'|")|('|"$)/g, '')),
+    String: s => !['false', '', '0'].includes(dequotify(s)),
     Boolean: b => b,
     Number: n => !!n,
     _: () => false,
@@ -154,7 +157,9 @@ const getFunctions = (
       return EvalValue.Void()
     },
     'js-eval': async () => {
-      const js = evalValueToString(await evalExpr(args[0], actions))
+      console.log(args[0])
+      const js = await evalExprAsString(args[0], actions)
+      console.log(js)
       return js && (await actions.jsEval(js))
     },
 
@@ -295,6 +300,19 @@ const getFunctions = (
       }
 
       return EvalValue.Void()
+    },
+
+    string: async () => {
+      const str = await Promise.all(args.map(a => evalExprAsString(a, actions)))
+      return EvalValue.String(str.filter(Boolean).join(''))
+    },
+    quotify: async () => {
+      const str = await evalExprAsString(args[0], actions)
+      return EvalValue.String(`'${str}'`)
+    },
+    dequotify: async () => {
+      const str = await evalExprAsString(args[0], actions)
+      return EvalValue.String(dequotify(str || ''))
     },
 
     _: () => Promise.reject(new Error(`Not implemented: ${name}`)),
