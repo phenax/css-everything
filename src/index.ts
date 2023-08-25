@@ -247,10 +247,10 @@ export const handleEvents = async (
   }
 }
 
-const declarationToElement = (
+const declarationToElement = async (
   declaration: Declaration,
   $parent?: HTMLElement,
-): { node: HTMLElement; isNewElement: boolean } => {
+): Promise<{ node: HTMLElement; isNewElement: boolean }> => {
   const { tag, id, selectors } = declaration.selector
   const tagName = tag || 'div'
 
@@ -291,12 +291,17 @@ const createLayer = async (
   if (!$childrenRoot.parentNode) $parent.appendChild($childrenRoot)
 
   for (const declaration of declarations) {
-    const { node: $child, isNewElement } = declarationToElement(
+    const { node: $child, isNewElement } = await declarationToElement(
       declaration,
       $childrenRoot,
     )
     $childrenRoot.appendChild($child)
+    console.log($child.dataset.element, isNewElement, declaration)
     await manageElement($child, isNewElement)
+
+    if (declaration.children.length > 0) {
+      await createLayer(declaration.children, $child)
+    }
   }
 }
 

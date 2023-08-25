@@ -47,7 +47,7 @@ export type EvalValue = Enum<{
   String: string
   Number: number
   Boolean: boolean
-  Lazy: Expr[]
+  Lazy: Array<Expr>
   Void: never
   VarIdentifier: string
   Map: { [key in string]: EvalValue }
@@ -280,7 +280,7 @@ const getFunctions = (
       return EvalValue.Map(Object.fromEntries(values.filter(Boolean) as any))
     },
 
-    func: async () => EvalValue.Lazy(args),
+    seq: async () => EvalValue.Lazy(args),
 
     call: async () => {
       const varId = match<string | undefined, EvalValue>(

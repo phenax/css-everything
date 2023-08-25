@@ -30,9 +30,40 @@ export const toDeclaration =
       },
       Call: async ({ name, args }) => {
         return matchString(name, {
-          // h: () => {
-          //
-          // },
+          h: async () => {
+            const [sel, map, childreExpr] = args
+
+            // Selector
+            match(sel, {
+              Selector: sel => {
+                selector = sel
+              },
+              _: _ => {},
+            })
+
+            const props = await evalExpr(map, actions)
+            match(props, {
+              Map: props => {
+                for (const [key, value] of Object.entries(props)) {
+                  properties.set(key, value)
+                }
+              },
+              _: _ => {},
+            })
+
+            const childrenExprs = await match<
+              Promise<Array<Declaration | undefined>>,
+              EvalValue
+            >(await evalExpr(childreExpr, actions), {
+              Lazy: async exprs =>
+                Promise.all(exprs.map(toDeclaration(actions))),
+              _: async _ => [],
+            })
+
+            children.push(
+              ...(childrenExprs.filter(Boolean) as Array<Declaration>),
+            )
+          },
           instance: async () => {
             isInstance = true
             const [sel, map] = args

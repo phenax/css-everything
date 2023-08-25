@@ -43,11 +43,6 @@
     input#input-email
     input#input-password
     #actions
-    h(#message[data-attr="wiow"], map(--wow: "wow"),
-      div#wow
-      div#yay
-      h(div#yay, map(--wow: "wow"))
-    )
   ;
 }
 #form.submitted #message::after {
