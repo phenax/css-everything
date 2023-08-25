@@ -9,15 +9,14 @@ A ui library where you only write CSS. No HTML, no JS, no build system, only CSS
 > Disclaimer: Don't use this
 
 
-## Usage
+## Docs
 
 - [Read the documentation](https://github.com/phenax/css-everything/tree/main/docs/README.md) to become enlightened.
 - [Here's how this works](https://github.com/phenax/css-everything/tree/main/docs/how-it-works.md).
 
 
-### Simple example
-You can start by adding the script tag for the renderer in your document
-
+## Examples
+All the magic starts with adding the renderer script tag to your html and having a `--cssx-children` property set on your `body` -
 ```html
 <script async defer src="https://unpkg.com/@css-everything/render/dist/renderer/index.js"></script>
 ```
