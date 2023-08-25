@@ -8,7 +8,7 @@
   - (x) Scoped catch on try
   - (x) `do` expression
   - (x) `let` expression
-  - ( ) `h` declarations
+  - (x) `h` declarations
   - ( ) `has-class`
   - ( ) `add-class` & `remove-class` should use self if id is not specified?
   - ( ) Update `--cssx-text` on update

@@ -82,11 +82,11 @@ export const evalExpr = async (
 }
 
 const QUOTE_REGEX = /^['"](.*)(?=['"]$)['"]$/g
-const dequotify = (s: string) => s.replace(QUOTE_REGEX, '$1')
+const unquotify = (s: string) => s.replace(QUOTE_REGEX, '$1')
 
 export const evalValueToString = (val: EvalValue): string | undefined =>
   match<string | undefined, EvalValue>(val, {
-    String: s => dequotify(s),
+    String: s => unquotify(s),
     Boolean: b => `${b}`,
     Number: n => `${n}`,
     VarIdentifier: s => s,
@@ -105,7 +105,7 @@ const evalValueToNumber = (val: EvalValue): number | undefined =>
 
 const evalValueToBoolean = (val: EvalValue): boolean =>
   match<boolean, EvalValue>(val, {
-    String: s => !['false', '', '0'].includes(dequotify(s)),
+    String: s => !['false', '', '0'].includes(unquotify(s)),
     Boolean: b => b,
     Number: n => !!n,
     Value: v => !!v,
@@ -282,6 +282,10 @@ const getFunctions = (
 
     seq: async () => EvalValue.Lazy(args),
 
+    // noop
+    noop: async () => EvalValue.Void(),
+    func: async () => EvalValue.Void(),
+
     call: async () => {
       const varId = match<string | undefined, EvalValue>(
         await evalExpr(args[0], actions),
@@ -321,9 +325,9 @@ const getFunctions = (
       const str = await evalExprAsString(args[0], actions)
       return EvalValue.String(`'${str || ''}'`)
     },
-    dequotify: async () => {
+    unquotify: async () => {
       const str = await evalExprAsString(args[0], actions)
-      return EvalValue.String(dequotify(str || ''))
+      return EvalValue.String(unquotify(str || ''))
     },
 
     try: async () => {

@@ -3,11 +3,11 @@ A ui library where you only write CSS. No HTML, no JS, no build system, only CSS
 
 > Disclaimer: Don't use this
 
-
 ## Usage
 
-### Docs
-WIP. Coming soon maybe?
+- [Read the documentation](https://github.com/phenax/css-everything/tree/main/docs/README.md) to become enlightened.
+- [Here's how this works](https://github.com/phenax/css-everything/tree/main/docs/how-it-works.md).
+
 
 ### Simple example
 You can start by adding the script tag for the renderer inside the body

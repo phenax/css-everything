@@ -17,6 +17,7 @@
     "format": "prettier --write './{src,tests}/**/*.{ts,html,css}'",
     "lint": "eslint ./src",
     "fix": "yarn lint --fix && yarn format",
+    "pub:patch": "yarn lint && yarn build && yarn publish --access=public --patch",
     "test": "jest"
   },
   "devDependencies": {

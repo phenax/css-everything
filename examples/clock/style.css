@@ -84,8 +84,8 @@ body * { box-sizing: border-box; }
   top: 50%;
   left: 50%;
   transform-origin: 0% 50%;
-  transform: rotate(0deg);
   border-radius: 5px;
+  transform: rotate(0deg);
 
   --get-transform: string('rotate(', get-var(--angle), 'deg)');
 

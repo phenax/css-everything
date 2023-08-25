@@ -296,7 +296,6 @@ const createLayer = async (
       $childrenRoot,
     )
     $childrenRoot.appendChild($child)
-    console.log($child.dataset.element, isNewElement, declaration)
     await manageElement($child, isNewElement)
 
     if (declaration.children.length > 0) {
