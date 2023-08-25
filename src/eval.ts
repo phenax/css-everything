@@ -332,6 +332,14 @@ const getFunctions = (
       }
     },
 
+    do: async () => {
+      let result = EvalValue.Void()
+      for (const expr of args) {
+        result = await evalExpr(expr, actions)
+      }
+      return result
+    },
+
     _: () => Promise.reject(new Error(`Not implemented: ${name}`)),
   })
 }

@@ -30,11 +30,13 @@
     prevent-default()
     add-class(form, 'submitting')
     try(
-      request('https://jksldjflksdjlfsd.com/wow'),
+      do(
+        request('/examples'),
+        add-class(form, 'submitted')
+      ),
       js-eval(string('alert("', get-var(--error), '")'))
     )
     remove-class(form, 'submitting')
-    add-class(form, 'submitted')
   ;
 
   --cssx-children: input#input-email input#input-password #actions #message;
