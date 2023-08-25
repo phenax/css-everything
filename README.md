@@ -60,8 +60,9 @@ You can start by adding the script tag for the renderer inside the body
 > "Wow. You couldn't come up with a more boring example if you tried."
 
 Alright. You don't have to be mean about it.
-- [Here's a todo example](https://codepen.io/phenax/pen/QWzWGaV?editors=1100)
-- [Here's a simple date example](https://codepen.io/phenax/pen/KKbKNeb?editors=1100)
+- [Here's a counter example](https://codepen.io/phenax/pen/KKbdZep?editors=1100)
+- [Here's a todo app example](https://codepen.io/phenax/pen/QWzWGaV?editors=1100)
+- [Here's a clock example](https://codepen.io/phenax/pen/KKbKNeb?editors=1100)
 - [More in the examples directory](https://github.com/phenax/css-everything/tree/main/examples)
 
 
