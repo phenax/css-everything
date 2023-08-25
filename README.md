@@ -16,50 +16,13 @@ A ui library where you only write CSS. No HTML, no JS, no build system, only CSS
 
 
 ### Simple example
-You can start by adding the script tag for the renderer inside the body
+You can start by adding the script tag for the renderer in your document
 
 ```html
-<!-- index.html -->
-<html lang="en">
-  <head>
-    <link href="./style.css" rel="stylesheet" />
-  </head>
-  <body>
-    <script async defer src="https://unpkg.com/@css-everything/render/dist/renderer/index.js"></script>
-  </body>
-</html>
+<script async defer src="https://unpkg.com/@css-everything/render/dist/renderer/index.js"></script>
 ```
 
-```css
-/* style.css */
-
-:root {
-  /* creates 2 elements main and button */
-  --cssx-children: main#main-el button#my-button;
-}
-
-#main-el {
-  --text: "<stuff>";
-}
-#main-el::after {
-  content: var(--text);
-}
-
-#my-button {
-  --cssx-text: "Click me";
-  /* On click, waits for 1 second and then updates the --text property #main-el */
-  --cssx-on-click:
-    update(main-el, --text, "Loading...")
-    delay(1s)
-    update(main-el, --text, "Hello world!");
-}
-```
-
-[Here's the code in action](https://codepen.io/phenax/pen/gOZOLgR?editors=1100)
-
-> "Wow. You couldn't come up with a more boring example if you tried."
-
-Alright. You don't have to be mean about it.
+Here are a few live examples for you to try out -
 - [Here's a counter example](https://codepen.io/phenax/pen/KKbdZep?editors=1100)
 - [Here's a todo app example](https://codepen.io/phenax/pen/QWzWGaV?editors=1100)
 - [Here's a clock example](https://codepen.io/phenax/pen/KKbKNeb?editors=1100)
