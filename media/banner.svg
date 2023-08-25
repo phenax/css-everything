@@ -28,7 +28,7 @@
      inkscape:document-units="mm"
      showgrid="false"
      inkscape:zoom="0.73654347"
-     inkscape:cx="608.92536"
+     inkscape:cx="522.033"
      inkscape:cy="372.00791"
      inkscape:window-width="1906"
      inkscape:window-height="1049"
@@ -42,16 +42,23 @@
      inkscape:label="Layer 1"
      inkscape:groupmode="layer"
      id="layer1">
+    <rect
+       style="opacity:0.826094;fill:#000000;fill-opacity:0.40707275;stroke:none;stroke-width:1.32292;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:100"
+       id="rect1280"
+       width="299.92044"
+       height="59.923859"
+       x="0.24843478"
+       y="0.40708575" />
     <text
        xml:space="preserve"
-       style="font-weight:bold;font-size:31.3881px;font-family:System-ui;-inkscape-font-specification:'System-ui Bold';text-align:center;text-anchor:middle;opacity:0.826094;fill:#a053ff;fill-opacity:1;stroke:none;stroke-width:1.96176;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:100"
+       style="font-weight:bold;font-size:30.2289px;font-family:System-ui;-inkscape-font-specification:'System-ui Bold';text-align:center;text-anchor:middle;opacity:0.826094;fill:#a053ff;fill-opacity:1;stroke:none;stroke-width:1.88931;stroke-linecap:round;stroke-linejoin:round;stroke-miterlimit:100"
        x="149.89926"
-       y="40.506577"
+       y="40.129833"
        id="text236"><tspan
          sodipodi:role="line"
          id="tspan234"
-         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'JetBrainsMono Nerd Font Mono';-inkscape-font-specification:'JetBrainsMono Nerd Font Mono Bold';fill:#aa67ff;fill-opacity:1;stroke:none;stroke-width:1.96176"
+         style="font-style:normal;font-variant:normal;font-weight:bold;font-stretch:normal;font-family:'JetBrainsMono Nerd Font Mono';-inkscape-font-specification:'JetBrainsMono Nerd Font Mono Bold';fill:#aa67ff;fill-opacity:1;stroke:none;stroke-width:1.88931"
          x="149.89926"
-         y="40.506577">[css-everything]</tspan></text>
+         y="40.129833">[css-everything]</tspan></text>
   </g>
 </svg>
