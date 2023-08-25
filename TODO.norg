@@ -1,16 +1,17 @@
 * Now
-  - (x) Refactor eval to return EvalValue
-  - ( ) Functions. `--my-func: func(if(get-var(--x), get-var(--y), ""))`.
-  - ( ) Function calls. `call(get-var(--my-func), --x: 6, --y: 2)`
-  - ( ) Evaluate `calc`
-  - ( ) string concatenation
+  - (x) Documentation
+  - ( ) string concatenation/interpolation
   - ( ) analog + digital clock example
-
-* Later
+  - ( ) `--cssx-use-properties: --parent-prop;` to trigger nested property update
   - ( ) Update `--cssx-text` on update
-  - ( ) `request` error handling
+  - ( ) FFI interface to declare functions
+  - ( ) some way to de-quotify values?
   - ( ) `has-class`
   - ( ) `add-class` & `remove-class` should use self if id is not specified?
+
+* Later
+  - ( ) Evaluate `calc`
+  - ( ) `request` error handling
   - ( ) keyboard events
   - ( ) Code cleanup
   - ( ) Additional events
@@ -19,7 +20,6 @@
   - ( ) filter for on update on specific properties
 
 * Maybe
-  - ( ) `list` & `tuple` data structures?
   - ( ) *server-side css*? Why the fuck not!?
 
 * Done
@@ -46,4 +46,7 @@
   - (x) access child from an instance (update checkbox)
   - (x) access instance from child (delete task)
   - (x) focus blur events
+  - (x) Refactor eval to return EvalValue
+  - (x) Functions. `--my-func: func(if(get-var(--x), get-var(--y), ""))`.
+  - (x) Function calls. `call(get-var(--my-func), --x: 6, --y: 2)`
 
