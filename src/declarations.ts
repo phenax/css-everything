@@ -1,35 +1,12 @@
-import { EvalActions, evalExprAsString } from './eval'
+import { EvalActions, EvalValue, evalExpr } from './eval'
 import { Expr, Selector, SelectorComp, parseDeclarations } from './parser'
 import { match, matchString } from './utils/adt'
 
 export interface Declaration {
   selector: Selector
-  properties: Map<string, Expr>
+  properties: Map<string, EvalValue>
+  children: Array<Declaration>
   isInstance: boolean
-}
-
-export interface DeclarationEval {
-  selector: Selector
-  properties: Array<readonly [string, string]>
-}
-
-export const evaluateDeclaration = async (
-  { selector, properties }: Declaration,
-  actions: EvalActions,
-): Promise<DeclarationEval> => {
-  if (properties.size === 0) return { selector, properties: [] }
-
-  const props = await Promise.all(
-    [...properties.entries()].map(async ([key, expr]) => {
-      // Ignore errors?
-      const result = await evalExprAsString(expr, actions).catch((e: any) =>
-        console.warn(e),
-      )
-      return [key, result ?? ''] as const
-    }),
-  )
-
-  return { selector, properties: props }
 }
 
 const instanceCountMap = new Map<string, number>()
@@ -39,78 +16,76 @@ const getUniqueInstanceId = (id: string) => {
   return `${id}--index-${instanceCount}`
 }
 
-export const toDeclaration = (expr: Expr): Declaration | undefined => {
-  let selector: Selector | undefined
-  const properties: Map<string, Expr> = new Map()
-  let isInstance = false
+export const toDeclaration =
+  (actions: EvalActions) =>
+  async (expr: Expr): Promise<Declaration | undefined> => {
+    let selector: Selector | undefined
+    const properties: Map<string, EvalValue> = new Map()
+    const children: Array<Declaration> = []
+    let isInstance = false
 
-  match(expr, {
-    Selector: sel => {
-      selector = sel
-    },
-    Call: ({ name, args }) => {
-      matchString(name, {
-        instance: () => {
-          isInstance = true
-          const [sel, map] = args
+    await match(expr, {
+      Selector: async sel => {
+        selector = sel
+      },
+      Call: async ({ name, args }) => {
+        return matchString(name, {
+          // h: () => {
+          //
+          // },
+          instance: async () => {
+            isInstance = true
+            const [sel, map] = args
 
-          // Selector
-          match(sel, {
-            Selector: sel => {
-              selector = sel
-            },
-            _: _ => {},
-          })
+            // Selector
+            match(sel, {
+              Selector: sel => {
+                selector = sel
+              },
+              _: _ => {},
+            })
 
-          // TODO: Refactor with eval
-          match(map, {
-            Call: ({ name, args }) => {
-              if (name !== 'map') return
-              for (const arg of args) {
-                match(arg, {
-                  Pair: ({ key, value }) => properties.set(key, value),
-                  _: _ => {},
-                })
-              }
-            },
-          })
-        },
-        _: () => {
-          throw new Error(`weird function in cssx-chi9ldren: ${name}`)
-        },
-      })
-    },
-    _: () => {},
-  })
+            const props = await evalExpr(map, actions)
+            match(props, {
+              Map: props => {
+                for (const [key, value] of Object.entries(props)) {
+                  properties.set(key, value)
+                }
+              },
+              _: _ => {},
+            })
+          },
+          _: async () => {
+            throw new Error(`weird function in cssx-chi9ldren: ${name}`)
+          },
+        })
+      },
+      _: async () => {},
+    })
 
-  if (!selector) return undefined
+    if (!selector) return undefined
 
-  if (isInstance) {
-    const baseId = selector.id
-    selector.id = getUniqueInstanceId(selector.id)
-    selector.selectors.push(SelectorComp.Attr(['data-instance', baseId]))
+    if (isInstance) {
+      const baseId = selector.id
+      selector.id = getUniqueInstanceId(selector.id)
+      selector.selectors.push(SelectorComp.Attr(['data-instance', baseId]))
+    }
+
+    return { selector, properties, children, isInstance }
   }
-
-  return { selector, properties, isInstance }
-}
 
 export const expressionsToDeclrs = async (
   exprs: Array<Expr>,
   actions: EvalActions,
-): Promise<Array<DeclarationEval>> => {
-  const declrs = await Promise.all(
-    exprs
-      .map(toDeclaration)
-      .filter(declr => !!declr)
-      .map(declr => declr && evaluateDeclaration(declr, actions)),
-  )
-  return declrs.filter(declr => !!declr) as Array<DeclarationEval>
+): Promise<Array<Declaration>> => {
+  const declrs = await Promise.all(exprs.map(toDeclaration(actions)))
+  return declrs.filter(declr => !!declr) as Array<Declaration>
 }
 
 export const extractDeclaration = async (
   input: string,
   actions: EvalActions,
-): Promise<Array<DeclarationEval>> => {
+): Promise<Array<Declaration>> => {
   const exprs = parseDeclarations(input)
   return expressionsToDeclrs(exprs, actions)
 }

@@ -7,8 +7,8 @@ import {
 } from './eval'
 import {
   extractDeclaration,
-  DeclarationEval,
   expressionsToDeclrs,
+  Declaration,
 } from './declarations'
 import { Expr, parse } from './parser'
 import { match, matchString } from './utils/adt'
@@ -68,7 +68,7 @@ export const getPropertyValue = ($element: HTMLElement, prop: string) => {
 export const getDeclarations = (
   $element: HTMLElement,
   actions: EvalActions,
-): Promise<Array<DeclarationEval>> => {
+): Promise<Array<Declaration>> => {
   const value = getPropertyValue($element, PROPERTIES.CHILDREN)
   return extractDeclaration(value, actions)
 }
@@ -248,7 +248,7 @@ export const handleEvents = async (
 }
 
 const declarationToElement = (
-  declaration: DeclarationEval,
+  declaration: Declaration,
   $parent?: HTMLElement,
 ): { node: HTMLElement; isNewElement: boolean } => {
   const { tag, id, selectors } = declaration.selector
@@ -270,15 +270,16 @@ const declarationToElement = (
     })
   }
 
-  for (const [key, value] of declaration.properties) {
-    $child?.style.setProperty(key, JSON.stringify(value))
+  for (const [key, evalValue] of declaration.properties) {
+    const value = evalValueToString(evalValue)
+    $child?.style.setProperty(key, JSON.stringify(value || ''))
   }
 
   return { node: $child, isNewElement }
 }
 
 const createLayer = async (
-  declarations: Array<DeclarationEval>,
+  declarations: Array<Declaration>,
   $parent: HTMLElement,
 ) => {
   const $childrenRoot =

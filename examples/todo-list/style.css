@@ -18,14 +18,6 @@ body * { box-sizing: border-box; }
   border-radius: 5px;
   overflow: hidden;
 
-  /* --my-func: */
-  /*   js-eval(get-var(--js)) */
-  /*   delay(1s) */
-  /*   call(--my-func, map(--js: get-var(--js))) */
-  /* ; */
-  /**/
-  /* --cssx-on-mount: call(--my-func, map(--js: "console.log(`yay`)")); */
-
   --cssx-children: form#task-input-form #task-list;
 }
 
