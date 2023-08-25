@@ -1,7 +1,13 @@
-# css-everything
+<center>
+  <img src="./media/banner.png" />
+</center>
+
+---
+
 A ui library where you only write CSS. No HTML, no JS, no build system, only CSS (kinda).
 
 > Disclaimer: Don't use this
+
 
 ## Usage
 
@@ -11,6 +17,7 @@ A ui library where you only write CSS. No HTML, no JS, no build system, only CSS
 
 ### Simple example
 You can start by adding the script tag for the renderer inside the body
+
 ```html
 <!-- index.html -->
 <html lang="en">
@@ -22,12 +29,6 @@ You can start by adding the script tag for the renderer inside the body
   </body>
 </html>
 ```
-
-**NOTE:** The HTML needs to have a body element since that is the root of your application by default.
-
-**NOTE_v2:** Styles need to be loaded before the renderer is triggered.
-
-**NOTE_v2_final:** You can load more cssx by using the `load-cssx()` function
 
 ```css
 /* style.css */
