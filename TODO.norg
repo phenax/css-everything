@@ -3,15 +3,14 @@
   - (x) string concatenation/interpolation
   - (x) some way to de-quotify values?
   - (x) re-quotify value
-  - ( ) analog + digital clock example
-  - ( ) `--cssx-use-properties: --parent-prop;` to trigger nested property update
-  - ( ) Update `--cssx-text` on update
-  - ( ) FFI interface to declare functions
+  - (x) analog + digital clock example
   - ( ) `has-class`
   - ( ) `add-class` & `remove-class` should use self if id is not specified?
+  - ( ) Update `--cssx-text` on update
+  - ( ) fix invalid expr in functions error
 
 * Later
-  - ( ) Evaluate `calc`
+  - ( ) FFI interface to declare functions
   - ( ) `request` error handling
   - ( ) keyboard events
   - ( ) Code cleanup
@@ -21,6 +20,8 @@
   - ( ) filter for on update on specific properties
 
 * Maybe
+  - ( ) `--cssx-use-properties: --parent-prop;` to trigger nested property update
+  - ( ) Evaluate `calc`
   - ( ) *server-side css*? Why the fuck not!?
 
 * Done

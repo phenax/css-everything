@@ -1,0 +1,98 @@
+:root {
+  --color-gray: #cccccc;
+  --color-accent: #5180e9;
+
+  font-size: 16px;
+  font-family: sans-serif;
+  color: #555;
+
+  --cssx-children: div#digital div#analog;
+}
+
+body * { box-sizing: border-box; }
+
+#digital {
+  text-align: center;
+  padding: 1rem;
+  font-size: 1.5rem;
+
+  --text: "hello";
+
+  --js-expr:
+    new Intl.DateTimeFormat('en-US', {
+      hour: 'numeric',
+      minute: 'numeric',
+      second: 'numeric',
+    }).format(new Date());
+  --get-date: js-eval(get-var(--js-expr));
+
+  --cssx-on-mount: update(--text, call(--get-date));
+  --cssx-on-update: delay(1s) update(--text, call(--get-date));
+}
+#digital::after { content: var(--text); }
+
+#analog {
+  border: 1px solid red;
+  width: 200px;
+  height: 200px;
+  margin: 1rem auto;
+  border-radius: 50%;
+  position: relative;
+
+  --date: "";
+  --get-date: js-eval("new Date()");
+
+  --cssx-on-mount: update(--date, call(--get-date));
+  --cssx-on-update:
+    update('[data-element=seconds]', --angle, js-eval("360 * new Date().getSeconds() / 60 - 90"))
+    update('[data-element=minutes]', --angle, js-eval("360 * new Date().getMinutes() / 60 - 90"))
+    update('[data-element=hours]', --angle,
+      js-eval("360 * (new Date().getHours() % 12) / 12 - 90 + (30 * new Date().getMinutes() / 60)")
+    )
+    delay(1s)
+    update(--date, call(--get-date));
+
+  --cssx-children:
+    div#seconds.analog-clock-hand
+    div#minutes.analog-clock-hand
+    div#hours.analog-clock-hand
+  ;
+}
+
+[data-element=seconds].analog-clock-hand {
+  --color: pink;
+  --size: 70px;
+}
+[data-element=minutes].analog-clock-hand {
+  --color: red;
+  --size: 60px;
+}
+[data-element=hours].analog-clock-hand {
+  --color: blue;
+  --size: 40px;
+  height: 4px;
+}
+
+.analog-clock-hand {
+  --angle: 0;
+  --color: black;
+  --size: 80px;
+
+  width: var(--size);
+  height: 2px;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform-origin: 0% 50%;
+  transform: rotate(0deg);
+  border-radius: 5px;
+
+  --get-transform: string('rotate(', get-var(--angle), 'deg)');
+
+  --cssx-on-mount:
+    update(background-color, get-var(--color))
+    update(transform, call(--get-transform))
+  ;
+  --cssx-on-update: update(transform, call(--get-transform));
+}
+

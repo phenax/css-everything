@@ -193,7 +193,9 @@ const getEvalActions = (
 
       const result = await evalExprInScope(exprs, getEvalActions(node, ctx))
 
-      node.parentNode?.removeChild(node)
+      if (!$element.hasAttribute('data-debug-stack')) {
+        node.parentNode?.removeChild(node)
+      }
 
       return result
     },
