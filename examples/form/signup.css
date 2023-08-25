@@ -29,7 +29,10 @@
   --cssx-on-submit:
     prevent-default()
     add-class(form, 'submitting')
-    request('/examples/')
+    try(
+      request('https://jksldjflksdjlfsd.com/wow'),
+      js-eval(string('alert("', get-var(--error), '")'))
+    )
     remove-class(form, 'submitting')
     add-class(form, 'submitted')
   ;

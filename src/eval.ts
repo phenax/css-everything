@@ -326,7 +326,9 @@ const getFunctions = (
       try {
         return await evalExpr(args[0], actions)
       } catch (e) {
-        return evalExpr(args[1], actions)
+        return actions.evaluateInScope([args[1]], {
+          '--error': EvalValue.Value(e),
+        })
       }
     },
 
