@@ -4,7 +4,7 @@
 
 ---
 
-A ui library where you only write CSS. No HTML, no JS, no build system, only CSS (kinda).
+A ui framework where you only write turing complete CSS. No HTML, no JS, no build system.
 
 > Disclaimer: Don't use this
 
