@@ -13,7 +13,7 @@ type pair = string: any
 
 ## Core
 
-### get-var
+### get-var / var
 Get css custom property from an element. Basically var but evaluated lazily.
 
 NOTE: Avoid using `var` inside cssx expressions.
@@ -27,6 +27,22 @@ Example -
 ```css
 #my-element {
   --cssx-text: get-var(--some-variable);
+}
+```
+
+### calc
+Do some math using the calc syntax. Not 100% compatible but it'll do.
+
+Supported units: rem, em, px, %, ms, s
+
+```typescript
+function calc(calc-expr): string
+```
+
+Example -
+```css
+#my-element {
+  --cssx-text: calc(1 + 5 * get-var(--some-variable));
 }
 ```
 
