@@ -267,5 +267,23 @@ describe('parser', () => {
         }),
       ])
     })
+
+    it('parses calc expression with vars', () => {
+      expect(parse(`calc(5px * var(--value))`)).toEqual([
+        Expr.Call({
+          name: 'calc',
+          args: [
+            Expr.BinOp({
+              op: '*',
+              left: Expr.LiteralNumber({ value: 5, unit: 'px' }),
+              right: Expr.Call({
+                name: 'var',
+                args: [Expr.VarIdentifier('--value')],
+              }),
+            }),
+          ],
+        }),
+      ])
+    })
   })
 })

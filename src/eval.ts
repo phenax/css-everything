@@ -1,4 +1,4 @@
-import { CSSUnit, Expr, parse } from './parser'
+import { CSSUnit, Expr, parse, parseExpr } from './parser'
 import { Enum, constructors, match, matchString } from './utils/adt'
 
 export interface EvalActions {
@@ -58,8 +58,10 @@ export const EvalValue = constructors<EvalValue>()
 export const evalExprAsString = async (
   expr: Expr,
   actions: EvalActions,
-): Promise<string | undefined> =>
-  evalValueToString(await evalExpr(expr, actions))
+): Promise<string | undefined> => {
+  const evalVal = await evalExpr(expr, actions)
+  return evalValueToString(evalVal)
+}
 
 export const evalExpr = async (
   expr: Expr,
@@ -72,11 +74,15 @@ export const evalExpr = async (
       EvalValue.Number(
         matchString<number, CSSUnit>(unit, {
           s: () => value * 1000,
+          rem: () => value * 16, // TODO: get root font size
+          em: () => value * 16, // TODO: get parent font size
+          '%': () => value * 100, // TODO: Get parent width
           _: () => value,
         }),
       ),
     Identifier: async s => EvalValue.String(s),
     VarIdentifier: async s => EvalValue.VarIdentifier(s),
+    Parens: ({ expr }) => evalExpr(expr, actions),
     _: async _ => EvalValue.Void(),
   })
 }
@@ -119,7 +125,9 @@ const getFunctions = (
 ): Promise<EvalValue> => {
   const getVariable = async () => {
     const varName = await evalExpr(args[0], actions)
-    const defaultValue = args[1] && (await evalExpr(args[1], actions))
+    const defaultValue = args[1]
+      ? await evalExpr(args[1], actions)
+      : EvalValue.Void()
 
     return match<Promise<EvalValue>, EvalValue>(varName, {
       VarIdentifier: async name => {
@@ -358,9 +366,54 @@ const getFunctions = (
       })
     },
 
+    calc: async () => {
+      const result = await evalCalcExpr(args[0], actions)
+      return EvalValue.Number(result)
+    },
+
     _: () => Promise.reject(new Error(`Not implemented: ${name}`)),
   })
 }
+
+const evalBinOp = async (
+  left: Expr,
+  right: Expr,
+  actions: EvalActions,
+  op: (a: number, b: number) => number,
+): Promise<number> =>
+  op(await evalCalcExpr(left, actions), await evalCalcExpr(right, actions))
+
+export const evalCalcExpr = (
+  expr: Expr,
+  actions: EvalActions,
+): Promise<number> =>
+  match(expr, {
+    BinOp: async ({ op, left, right }) =>
+      matchString(op, {
+        '+': () => evalBinOp(left, right, actions, (a, b) => a + b),
+        '*': () => evalBinOp(left, right, actions, (a, b) => a * b),
+        '-': () => evalBinOp(left, right, actions, (a, b) => a - b),
+        '/': () => evalBinOp(left, right, actions, (a, b) => a / b),
+        _: () =>
+          Promise.reject(
+            new Error(`Invalid operator in calc expression: ${op}`),
+          ),
+      }),
+    Parens: ({ expr }) => evalCalcExpr(expr, actions),
+    _: async () => {
+      if (expr.tag === 'Call' && expr.value.name === 'var') {
+        const value = await evalExprAsString(expr, actions)
+        try {
+          const pvalue = await evalExpr(parseExpr(value ?? ''), actions)
+          return evalValueToNumber(pvalue) ?? 0
+        } catch (e) {
+          return 0
+        }
+      }
+      const value = await evalExpr(expr, actions)
+      return evalValueToNumber(value) ?? 0
+    },
+  })
 
 export const evalArgs = (
   args: Array<Expr>,

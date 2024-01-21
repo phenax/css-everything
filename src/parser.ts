@@ -2,6 +2,7 @@ import { Enum, constructors, match, matchString } from './utils/adt'
 import * as P from './utils/parser-comb'
 import { Result } from './utils/result'
 
+// TODO: vh, vw
 export type CSSUnit = '' | 's' | 'ms' | 'px' | '%' | 'rem' | 'em'
 
 export type BinOp = '+' | '-' | '*' | '/'
