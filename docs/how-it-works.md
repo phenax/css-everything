@@ -90,11 +90,12 @@ This is by far the most "fun" aspect of this project. Take a look at the docs fo
 }
 ```
 
-NOTE: `func` is noop and just exists for documentation. You can also do `func(--a: string, --b: number)` and it'll be valid syntax but ignored at evaluation. So basically, typescript.
-NOTE: If you come at me with how using `js-eval` is cheating, I won't be responsible for your injuries. JS-in-CSS is the future.
+> NOTE: `func` is noop and just exists for documentation. You can also do `func(--a: string, --b: number)` and it'll be valid syntax but ignored at evaluation. So basically, typescript.
 
-The way this works is that it creates a new dom element inside the caller (`#my-element`), which then becomes the scope for the function.
-Whatever arguments are passed to call will be added as css properties to this dom element.
+> NOTE: If you come at me with how using `js-eval` is cheating, I won't be responsible for your injuries. JS-in-CSS is the future.
+
+The way this works is that it creates a new dom element with `display: none` inside the caller (`#my-element`), which then becomes the scope for the function.
+Whatever arguments are passed to `call` will be added as css properties to this dom element.
 Then the expressions inside the function is evaluated within the context of that element.
 
 This means that with `call(--factorial, map(--n: 5))` the dom tree would look something like this.
@@ -116,9 +117,10 @@ This means that with `call(--factorial, map(--n: 5))` the dom tree would look so
 </div>
 ```
 
-This is the call stack. This is immedietely deleted as soon as the required computation is completed. Not performing any tail-call optimizations for this to make it use just the one element, but if you're interested in giving it a shot, it should be fairly straight-forward to implement.
+This is the call stack. This is deleted as soon as the required computation is completed. (tail-call optimization, maybe? Hahahahaha. Kill me.)
 
 > PRO TIP 1: If you want the tree to persist even after the function is evaluated (for debugging), add the `data-debug-stack` attribute to the caller element
-> PRO TIP 2: You could style these nodes to have this tree show up in the ui and use the `--cssx-text` property to display the arguments for each recursive function call
-> PRO TIP 3: If you're running into infinite loops, good luck. Also, you can add `delay(1s)` at the start of the function to slow things down to debug.
 
+> PRO TIP 2: You could style these nodes to have this tree show up in the ui and use the `--cssx-text` property to display the arguments for each recursive function call
+
+> PRO TIP 3: If you're running into infinite loops, good luck. Also, you can add `delay(1s)` at the start of the function to slow things down to debug.
