@@ -285,5 +285,62 @@ describe('parser', () => {
         }),
       ])
     })
+
+    it('preserves order of operations (same operator)', () => {
+      expect(parse(`calc(30 - 5 - 3)`)).toEqual([
+        Expr.Call({
+          name: 'calc',
+          args: [
+            Expr.BinOp({
+              op: '-',
+              left: Expr.BinOp({
+                op: '-',
+                left: Expr.LiteralNumber({ value: 30, unit: '' }),
+                right: Expr.LiteralNumber({ value: 5, unit: '' }),
+              }),
+              right: Expr.LiteralNumber({ value: 3, unit: '' }),
+            }),
+          ],
+        }),
+      ])
+    })
+
+    it('preserves order of operations (different operators, same precedance)', () => {
+      expect(parse(`calc(30 + 5 - 3)`)).toEqual([
+        Expr.Call({
+          name: 'calc',
+          args: [
+            Expr.BinOp({
+              op: '-',
+              left: Expr.BinOp({
+                op: '+',
+                left: Expr.LiteralNumber({ value: 30, unit: '' }),
+                right: Expr.LiteralNumber({ value: 5, unit: '' }),
+              }),
+              right: Expr.LiteralNumber({ value: 3, unit: '' }),
+            }),
+          ],
+        }),
+      ])
+    })
+
+    it('preserves order of operations (different operators, different precedance)', () => {
+      expect(parse(`calc(30 / 5 * 3)`)).toEqual([
+        Expr.Call({
+          name: 'calc',
+          args: [
+            Expr.BinOp({
+              op: '*',
+              left: Expr.BinOp({
+                op: '/',
+                left: Expr.LiteralNumber({ value: 30, unit: '' }),
+                right: Expr.LiteralNumber({ value: 5, unit: '' }),
+              }),
+              right: Expr.LiteralNumber({ value: 3, unit: '' }),
+            }),
+          ],
+        }),
+      ])
+    })
   })
 })
