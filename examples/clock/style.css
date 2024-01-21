@@ -15,6 +15,13 @@
     ));
 }
 
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #0f172a;
+  color: #e2e8f0;
+}
+
 body * { box-sizing: border-box; }
 
 #digital {
@@ -38,7 +45,7 @@ body * { box-sizing: border-box; }
 #digital::after { content: var(--text); }
 
 #analog {
-  border: 1px solid red;
+  background-color: #1e293b;
   width: 200px;
   height: 200px;
   margin: 1rem auto;
@@ -50,25 +57,26 @@ body * { box-sizing: border-box; }
 
   --cssx-on-mount: update(--date, call(--get-date));
   --cssx-on-update:
-    update('[data-element=seconds]', --angle, js-eval("360 * new Date().getSeconds() / 60 - 90"))
-    update('[data-element=minutes]', --angle, js-eval("360 * new Date().getMinutes() / 60 - 90"))
-    update('[data-element=hours]', --angle,
-      js-eval("360 * (new Date().getHours() % 12) / 12 - 90 + (30 * new Date().getMinutes() / 60)")
-    )
+    update('[data-element=seconds]', --angle, calc(360 * js-eval("new Date().getSeconds()")/60 - 90))
+    update('[data-element=minutes]', --angle, calc(360 * js-eval("new Date().getMinutes()")/60 - 90))
+    update('[data-element=hours]', --angle, calc(
+      360 * js-eval("new Date().getHours() % 12")/12 - 90
+      + (30 * js-eval("new Date().getMinutes()")/60)
+    ))
     delay(1s)
     update(--date, call(--get-date));
 }
 
 [data-element=seconds].analog-clock-hand {
-  --color: pink;
+  --color: #cbd5e1;
   --size: 70px;
 }
 [data-element=minutes].analog-clock-hand {
-  --color: red;
+  --color: #991b1b;
   --size: 60px;
 }
 [data-element=hours].analog-clock-hand {
-  --color: blue;
+  --color: #4f46e5;
   --size: 40px;
   height: 4px;
 }

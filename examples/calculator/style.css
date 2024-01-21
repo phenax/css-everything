@@ -1,0 +1,155 @@
+:root {
+  --cssx-children: main#container;
+}
+
+html, body {
+  margin: 0;
+  padding: 0;
+  background-color: #e2e8f0;
+  font-size: 16px;
+}
+body * {
+  box-sizing: border-box;
+  font-family: Courier, monospace;
+}
+
+#container {
+  --num1: '';
+  --num2: '';
+  --operation: '';
+
+  max-width: 400px;
+  margin: 2rem auto;
+  padding: 1rem;
+  background-color: #020617;
+  color: #e2e8f0;
+
+  --cssx-children: #display hr#sep0 #buttons;
+}
+
+#display {
+  padding: 0 1rem;
+  line-height: 1.7em;
+  font-size: 2rem;
+  height: 3rem;
+  background-color: #0f172a;
+  text-align: right;
+}
+#display::after {
+  content: var(--num1) var(--operation) var(--num2);
+}
+
+#buttons {
+  --cssx-children:
+    h(div#toprow.horizontal, map(), seq(
+      button#btn-clear,
+      button#btn-run,
+    ))
+    div#buttons-numbers
+    div#buttons-operators.horizontal
+  ;
+}
+#buttons > * {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+#buttons-operators {
+  --cssx-children:
+    instance(button#btn-op, map(--op: "+"))
+    instance(button#btn-op, map(--op: "-"))
+    instance(button#btn-op, map(--op: "*"))
+    instance(button#btn-op, map(--op: "/"))
+    instance(button#btn-op, map(--op: "!"))
+  ;
+}
+
+#buttons-numbers {
+  --cssx-children:
+    instance(button#btn-num, map(--n: "9"))
+    instance(button#btn-num, map(--n: "8"))
+    instance(button#btn-num, map(--n: "7"))
+    instance(button#btn-num, map(--n: "6"))
+    instance(button#btn-num, map(--n: "5"))
+    instance(button#btn-num, map(--n: "4"))
+    instance(button#btn-num, map(--n: "3"))
+    instance(button#btn-num, map(--n: "2"))
+    instance(button#btn-num, map(--n: "1"))
+    instance(button#btn-num, map(--n: "0"))
+  ;
+}
+#buttons-numbers > * {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 2px;
+}
+
+[data-instance=btn-num]::after { content: var(--n); }
+[data-instance=btn-num] {
+  width: 100%;
+  --cssx-on-click:
+    if(get-var(--operation),
+      if(equals(get-var(--operation), '!'),
+        '',
+        update('container', --num2, string(get-var(--num2), get-var(--n)))),
+      update('container', --num1, string(get-var(--num1), get-var(--n))),
+    );
+}
+
+[data-instance=btn-op]::after { content: var(--op); }
+[data-instance=btn-op] {
+  width: 100%;
+  --cssx-on-click: update('container', --operation, get-var(--op));
+}
+
+#btn-run::after { content: '='; }
+#btn-run {
+  --factorial: func(--n: number)
+    if(lte(get-var(--n), 1), 1,
+      calc(
+        get-var(--n)
+        * call(--factorial, map(--n: calc(get-var(--n) - 1)))
+      ));
+
+  --cssx-on-click:
+    update('container', --num1,
+      if(equals(get-var(--operation), '!'),
+        call(--factorial, map(--n: get-var(--num1))),
+        if(get-var(--num2),
+          js-eval(string(get-var(--num1), get-var(--operation), get-var(--num2))),
+          get-var(--num1)
+        )
+      )
+    )
+    update('container', --operation, '')
+    update('container', --num2, '');
+}
+
+#btn-clear::after { content: 'clear'; }
+#btn-clear {
+  --cssx-on-click:
+    update('container', --num1, '')
+    update('container', --operation, '')
+    update('container', --num2, '');
+}
+
+button {
+  width: 100%;
+  padding: 0.5rem 0;
+  border: none;
+  background-color: #475569;
+  color: white;
+  font-weight: bold;
+  font-size: 1.3rem;
+  cursor: pointer;
+}
+button:hover { background-color: #334155; }
+button:active { background-color: #64748b; }
+
+body .horizontal > * {
+  width: 100%;
+  display: flex;
+  justify-content: space-between;
+  gap: 2px;
+}

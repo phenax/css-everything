@@ -116,7 +116,7 @@ const precedence = (op: BinOp) =>
     _: () => -1,
   })
 
-const binOpWithFixitySwitchity = (op: BinOp, left: Expr, right: Expr) =>
+const binOpWithFixitySwitchity = (op: BinOp, left: Expr, right: Expr): Expr =>
   match(right, {
     BinOp: binOp => {
       if (precedence(op) >= precedence(binOp.op)) {

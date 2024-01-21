@@ -371,9 +371,58 @@ const getFunctions = (
       return EvalValue.Number(result)
     },
 
+    // TODO: Structural comparison?
+    equals: async () =>
+      compare(
+        args[0],
+        args[1],
+        actions,
+        (a, b) => evalValueToString(a) === evalValueToString(b),
+      ),
+
+    gt: async () =>
+      compare(
+        args[0],
+        args[1],
+        actions,
+        (a, b) => (evalValueToNumber(a) ?? 0) > (evalValueToNumber(b) ?? 0),
+      ),
+
+    lt: async () =>
+      compare(
+        args[0],
+        args[1],
+        actions,
+        (a, b) => (evalValueToNumber(a) ?? 0) < (evalValueToNumber(b) ?? 0),
+      ),
+
+    gte: async () =>
+      compare(
+        args[0],
+        args[1],
+        actions,
+        (a, b) => (evalValueToNumber(a) ?? 0) >= (evalValueToNumber(b) ?? 0),
+      ),
+
+    lte: async () =>
+      compare(
+        args[0],
+        args[1],
+        actions,
+        (a, b) => (evalValueToNumber(a) ?? 0) <= (evalValueToNumber(b) ?? 0),
+      ),
+
     _: () => Promise.reject(new Error(`Not implemented: ${name}`)),
   })
 }
+
+export const compare = async (
+  a: Expr,
+  b: Expr,
+  actions: EvalActions,
+  cmp: (a: EvalValue, b: EvalValue) => boolean,
+) =>
+  EvalValue.Boolean(cmp(await evalExpr(a, actions), await evalExpr(b, actions)))
 
 const evalBinOp = async (
   left: Expr,
@@ -401,7 +450,8 @@ export const evalCalcExpr = (
       }),
     Parens: ({ expr }) => evalCalcExpr(expr, actions),
     _: async () => {
-      if (expr.tag === 'Call' && expr.value.name === 'var') {
+      // Special expressions to double-evaluate
+      if (expr.tag === 'Call' && ['var', 'get-var'].includes(expr.value.name)) {
         const value = await evalExprAsString(expr, actions)
         try {
           const pvalue = await evalExpr(parseExpr(value ?? ''), actions)
