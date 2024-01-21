@@ -75,17 +75,12 @@ This is by far the most "fun" aspect of this project. Take a look at the docs fo
 
 ```css
 #my-element {
-  --factorial:
-    func(--n: number)
-    if(
-      js-eval(string(get-var(--n), '> 1')),
-      js-eval(string(
-        get-var(--n),
-        ' * ',
-        call(--factorial, map(--n: js-eval(string(get-var(--n), ' - 1'))))
-      )),
-      1
-    );
+  --factorial: func(--n: number)
+    if(lte(get-var(--n), 1), 1,
+      calc(
+        get-var(--n)
+        * call(--factorial, map(--n: calc(get-var(--n) - 1)))
+      ));
 
   --cssx-on-mount: js-eval(string(
     'console.log("',
