@@ -1,7 +1,10 @@
-import { Enum, constructors, match } from './utils/adt'
+import { Enum, constructors, match, matchString } from './utils/adt'
 import * as P from './utils/parser-comb'
+import { Result } from './utils/result'
 
-export type CSSUnit = '' | 's' | 'ms'
+export type CSSUnit = '' | 's' | 'ms' | 'px' | '%' | 'rem' | 'em'
+
+export type BinOp = '+' | '-' | '*' | '/'
 
 export interface Selector {
   tag: string | undefined
@@ -21,6 +24,8 @@ export type Expr = Enum<{
   VarIdentifier: string
   LiteralString: string
   LiteralNumber: { value: number; unit: CSSUnit }
+  BinOp: { op: BinOp; left: Expr; right: Expr }
+  Parens: { expr: Expr }
 
   Pair: { key: string; value: Expr }
   Selector: Selector
@@ -42,14 +47,16 @@ const doubleQuote = P.string('"')
 const identifierExprParser = P.map(identifierParser, Expr.Identifier)
 const varIdentifierExprParser = P.map(varIdentifierParser, Expr.VarIdentifier)
 
-const callExprParser = (input: string) =>
-  P.map(
-    P.zip2(
-      consumeWhitespace(identifierParser),
-      parens(consumeWhitespace(P.sepBy(exprParser, comma))),
-    ),
-    ([name, args]) => Expr.Call({ name, args }),
-  )(input)
+const callExprParser =
+  (fnParser?: P.Parser<string>, argParser?: P.Parser<Expr>) =>
+  (input: string) =>
+    P.map(
+      P.zip2(
+        consumeWhitespace(fnParser ?? identifierParser),
+        parens(consumeWhitespace(P.sepBy(argParser ?? exprParser, comma))),
+      ),
+      ([name, args]) => Expr.Call({ name, args }),
+    )(input)
 
 const stringLiteralParser = P.or([
   P.between(singleQuote, P.regex(/^[^']*/), singleQuote),
@@ -60,9 +67,10 @@ const stringLiteralExprParser: P.Parser<Expr> = P.map(
   Expr.LiteralString,
 )
 
+const unitParser = P.regex(/^(s|ms|%|px|rem|em)/i)
 const numberParser = P.regex(/^[-+]?((\d*\.\d+)|\d+)/)
 const numberExprParser: P.Parser<Expr> = P.map(
-  P.zip2(numberParser, P.optional(P.regex(/^(s|ms)/i))),
+  P.zip2(numberParser, P.optional(unitParser)),
   ([value, unit]) =>
     Expr.LiteralNumber({ value: Number(value), unit: (unit ?? '') as CSSUnit }),
 )
@@ -98,15 +106,66 @@ const pairExprParser: P.Parser<Expr> = (input: string) =>
     ([key, value]) => Expr.Pair({ key, value }),
   )(input)
 
-const exprParser: P.Parser<Expr> = P.or([
-  stringLiteralExprParser,
-  numberExprParser,
-  callExprParser,
-  pairExprParser,
-  varIdentifierExprParser,
-  selectorExprParser,
-  identifierExprParser,
-])
+const precedence = (op: BinOp) =>
+  matchString(op, {
+    '+': () => 0,
+    '-': () => 0,
+    '*': () => 1,
+    '/': () => 2,
+    _: () => -1,
+  })
+
+const binOpWithFixitySwitchity = (op: BinOp, left: Expr, right: Expr) =>
+  match(right, {
+    BinOp: binOp => {
+      if (precedence(op) > precedence(binOp.op)) {
+        return Expr.BinOp({
+          op: binOp.op,
+          left: Expr.BinOp({
+            op,
+            left: left,
+            right: binOp.left,
+          }),
+          right: binOp.right,
+        })
+      }
+      return Expr.BinOp({ op, left, right })
+    },
+    Parens: ({ expr }) => Expr.BinOp({ op, left, right: expr }),
+    _: () => Expr.BinOp({ op, left, right }),
+  })
+
+const allowParens = (p: P.Parser<Expr>): P.Parser<Expr> =>
+  P.or([P.map(parens(p), expr => Expr.Parens({ expr })), p])
+
+const binOpP = P.regex(/^[+\-*/]/)
+
+const binOpExprParser: P.Parser<Expr> = allowParens((input: string) =>
+  match(exprParser(input), {
+    Ok: ({ value, input: rest }) =>
+      P.map(
+        P.optional(P.zip2(consumeWhitespace(binOpP), binOpExprParser)),
+        res =>
+          res
+            ? binOpWithFixitySwitchity(res[0] as BinOp, value, res[1])
+            : value,
+      )(rest),
+    Err: _ => Result.Ok({ value: [], input }),
+  }),
+)
+
+const exprParser: P.Parser<Expr> = allowParens(
+  P.or([
+    stringLiteralExprParser,
+    numberExprParser,
+    callExprParser(P.string('calc'), binOpExprParser),
+    callExprParser(),
+    pairExprParser,
+    varIdentifierExprParser,
+    selectorExprParser,
+    identifierExprParser,
+  ]),
+)
 
 export const parseExpr = (input: string): Expr => {
   return match(exprParser(input), {
@@ -120,7 +179,7 @@ export const parseExpr = (input: string): Expr => {
   })
 }
 
-const declarationParser = P.or([callExprParser, selectorExprParser])
+const declarationParser = P.or([callExprParser(), selectorExprParser])
 
 const multiDeclarationParser = P.sepBy(declarationParser, whitespace)
 

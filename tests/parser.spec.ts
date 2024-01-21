@@ -1,7 +1,7 @@
 import { Expr, SelectorComp, parse, parseDeclarations } from '../src/parser'
 
 describe('parser', () => {
-  it('should parse function call', () => {
+  it('parses function call', () => {
     expect(parse('hello()')).toEqual([Expr.Call({ name: 'hello', args: [] })])
     expect(parse('hello ( wow , foo ) ')).toEqual([
       Expr.Call({
@@ -30,7 +30,7 @@ describe('parser', () => {
     ])
   })
 
-  it('should parse sequential function calls', () => {
+  it('parses sequential function calls', () => {
     expect(parse('hello(world) foo-doo(bar, baz)')).toEqual([
       Expr.Call({
         name: 'hello',
@@ -43,7 +43,7 @@ describe('parser', () => {
     ])
   })
 
-  it('should parse string literal', () => {
+  it('parses string literal', () => {
     expect(parse(`"hello world toodles ' nice single quote there"`)).toEqual([
       Expr.LiteralString(`hello world toodles ' nice single quote there`),
     ])
@@ -53,7 +53,7 @@ describe('parser', () => {
     ])
   })
 
-  it('should parse var identifiers', () => {
+  it('parses var identifiers', () => {
     expect(parse(`var(--hello, 'default')`)).toEqual([
       Expr.Call({
         name: 'var',
@@ -88,7 +88,7 @@ describe('parser', () => {
     ])
   })
 
-  it('should parse number and css units', () => {
+  it('parses number and css units', () => {
     expect(parse(`100`)).toEqual([Expr.LiteralNumber({ value: 100, unit: '' })])
     expect(parse(`100s`)).toEqual([
       Expr.LiteralNumber({ value: 100, unit: 's' }),
@@ -125,7 +125,7 @@ describe('parser', () => {
     ])
   })
 
-  it('should parse pair and map expressions', () => {
+  it('parses pair and map expressions', () => {
     expect(parse(`--hello: "foobar is here"`)).toEqual([
       Expr.Pair({
         key: '--hello',
@@ -156,7 +156,7 @@ describe('parser', () => {
   })
 
   describe('parseDeclarations', () => {
-    it('should parse complex selectors', () => {
+    it('parses complex selectors', () => {
       expect(
         parseDeclarations(`button#something.my-class[hello=world]`),
       ).toEqual([
@@ -194,7 +194,7 @@ describe('parser', () => {
       ])
     })
 
-    it('should parse declarations', () => {
+    it('parses declarations', () => {
       expect(
         parseDeclarations(
           `instance(button#something, map(--text: "wow", --color: red))`,
@@ -214,6 +214,54 @@ describe('parser', () => {
                 Expr.Pair({ key: '--text', value: Expr.LiteralString('wow') }),
                 Expr.Pair({ key: '--color', value: Expr.Identifier('red') }),
               ],
+            }),
+          ],
+        }),
+      ])
+    })
+  })
+
+  describe('calc', () => {
+    it('parses calc expression', () => {
+      expect(parse(`calc(50% * 10px + 1px )`)).toEqual([
+        Expr.Call({
+          name: 'calc',
+          args: [
+            Expr.BinOp({
+              op: '+',
+              left: Expr.BinOp({
+                op: '*',
+                left: Expr.LiteralNumber({ value: 50, unit: '%' }),
+                right: Expr.LiteralNumber({ value: 10, unit: 'px' }),
+              }),
+              right: Expr.LiteralNumber({ value: 1, unit: 'px' }),
+            }),
+          ],
+        }),
+      ])
+    })
+
+    it('parses calc expression with parens', () => {
+      expect(parse(`calc((5))`)).toEqual([
+        Expr.Call({
+          name: 'calc',
+          args: [
+            Expr.Parens({ expr: Expr.LiteralNumber({ value: 5, unit: '' }) }),
+          ],
+        }),
+      ])
+      expect(parse(`calc(50% * (10px + 1px) )`)).toEqual([
+        Expr.Call({
+          name: 'calc',
+          args: [
+            Expr.BinOp({
+              op: '*',
+              left: Expr.LiteralNumber({ value: 50, unit: '%' }),
+              right: Expr.BinOp({
+                op: '+',
+                left: Expr.LiteralNumber({ value: 10, unit: 'px' }),
+                right: Expr.LiteralNumber({ value: 1, unit: 'px' }),
+              }),
             }),
           ],
         }),
